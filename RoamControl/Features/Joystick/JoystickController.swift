@@ -116,8 +116,15 @@ final class JoystickController {
 
         await appModel.startLocationSession(at: target(at: origin))
 
-        if case .idle = appModel.deviceSession.phase, phase == .preparing {
+        guard phase == .preparing else { return }
+        switch appModel.deviceSession.phase {
+        case .idle:
             phase = .failed(L10n.tr("PinDrop could not start the joystick session."))
+        case .active:
+            // An already-running session was re-targeted in place; no further phase event may arrive.
+            handleDeviceSessionPhase(appModel.deviceSession.phase, deviceSession: appModel.deviceSession)
+        case .openingLocalDevVPN, .discovering, .connecting, .stopping, .failed:
+            break
         }
     }
 
