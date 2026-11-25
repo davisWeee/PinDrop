@@ -8,6 +8,8 @@ struct HomeView: View {
     @State private var mapModel = MapViewModel()
     @State private var walkingRoutePlanner = WalkingRoutePlanner()
     @State private var walkingSimulation = WalkingSimulationController()
+    @State private var joystick = JoystickController()
+    @State private var isShowingJoystick = false
     @State private var isShowingDeviceSetup: Bool
     @State private var isShowingSettings: Bool
     @State private var isShowingSavedPlaces = false
@@ -43,6 +45,12 @@ struct HomeView: View {
                             .tint(.blue)
                     }
 
+                    if let coordinate = joystick.currentCoordinate {
+                        Annotation("Joystick location", coordinate: coordinate) {
+                            JoystickMapMarker(heading: joystick.heading, mapHeading: normalisedMapHeading)
+                        }
+                    }
+
                     if let coordinate = walkingSimulation.currentCoordinate {
                         Annotation("Walking location", coordinate: coordinate) {
                             Image(systemName: "figure.walk.circle.fill")
@@ -67,7 +75,7 @@ struct HomeView: View {
                         return
                     }
 
-                    guard !walkingSimulation.locksDestination else { return }
+                    guard !walkingSimulation.locksDestination, !joystick.isEngaged else { return }
                     guard let coordinate = proxy.convert(point, from: .local) else { return }
                     Task { await mapModel.selectDroppedPin(at: coordinate) }
                 }
@@ -191,6 +199,25 @@ struct HomeView: View {
                             .transition(reduceMotion ? .opacity : .scale.combined(with: .opacity))
                         }
 
+                        if canUseJoystick {
+                            Button {
+                                isShowingJoystick.toggle()
+                            } label: {
+                                Image(systemName: "gamecontroller.fill")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(isShowingJoystick ? Color.white : Color.blue)
+                                    .frame(width: 44, height: 44)
+                                    .background(
+                                        isShowingJoystick ? AnyShapeStyle(.blue) : AnyShapeStyle(.regularMaterial),
+                                        in: Circle()
+                                    )
+                                    .shadow(color: .black.opacity(0.12), radius: 10, y: 4)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(joystick.isEngaged)
+                            .accessibilityLabel("Joystick")
+                        }
+
                         if canRequestRealLocation {
                             Button {
                                 showCurrentLocationNorthUp()
@@ -216,7 +243,20 @@ struct HomeView: View {
                     }
                 }
 
-                if let route = walkingRoutePlanner.route,
+                if isShowingJoystick && canUseJoystick {
+                    JoystickPanel(
+                        controller: joystick,
+                        startName: joystickStartTarget?.name,
+                        isPaired: isPaired,
+                        onStick: { joystick.setStick($0, mapHeading: normalisedMapHeading) },
+                        onStart: {
+                            guard let origin = joystickStartTarget?.coordinate else { return }
+                            Task { await joystick.start(at: origin, using: appModel) }
+                        },
+                        onStop: { joystick.stop(using: appModel) },
+                        onClose: { isShowingJoystick = false }
+                    )
+                } else if let route = walkingRoutePlanner.route,
                    let destination = walkingRoutePlanner.destination {
                     WalkingRoutePreviewCard(
                         route: route,
@@ -399,6 +439,10 @@ struct HomeView: View {
                 newPhase,
                 deviceSession: appModel.deviceSession
             )
+            joystick.handleDeviceSessionPhase(
+                newPhase,
+                deviceSession: appModel.deviceSession
+            )
 
             switch newPhase {
             case .openingLocalDevVPN, .discovering, .connecting, .active, .stopping:
@@ -415,6 +459,9 @@ struct HomeView: View {
                 shouldRefreshRealLocationWhenActive = false
                 mapModel.showRealLocationAfterSession()
             }
+        }
+        .onChange(of: joystick.moveCount) { _, _ in
+            followJoystickOnMap()
         }
         .onChange(of: mapModel.selectedLocation?.id) { _, selectedLocationID in
             guard !walkingSimulation.locksDestination else { return }
@@ -465,6 +512,44 @@ struct HomeView: View {
             true
         case .checking, .importing, .paired:
             false
+        }
+    }
+
+    private var canUseJoystick: Bool {
+        !walkingSimulation.locksDestination && walkingRoutePlanner.route == nil
+    }
+
+    /// Where joystick movement begins: the live simulated spot, else the selected pin, else map centre.
+    private var joystickStartTarget: LocationTarget? {
+        if case .active(let target) = appModel.deviceSession.phase { return target }
+        if let selected = mapModel.selectedLocation { return selected }
+        guard let centre = visibleMapCamera?.centerCoordinate else { return nil }
+        return LocationTarget(
+            name: L10n.tr("Map centre"),
+            subtitle: String(format: "%.5f, %.5f", centre.latitude, centre.longitude),
+            latitude: centre.latitude,
+            longitude: centre.longitude
+        )
+    }
+
+    private func followJoystickOnMap() {
+        guard
+            joystick.followsPosition,
+            let coordinate = joystick.currentCoordinate,
+            let camera = visibleMapCamera
+        else { return }
+        let followed = MapCamera(
+            centerCoordinate: coordinate,
+            distance: camera.distance,
+            heading: camera.heading,
+            pitch: camera.pitch
+        )
+        if reduceMotion {
+            mapModel.cameraPosition = .camera(followed)
+        } else {
+            withAnimation(.linear(duration: JoystickController.tickInterval)) {
+                mapModel.cameraPosition = .camera(followed)
+            }
         }
     }
 
