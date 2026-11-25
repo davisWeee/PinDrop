@@ -37,6 +37,22 @@ struct ManualRouteHandle: Identifiable {
     let role: Role
 }
 
+/// Localized, user-facing text for GPX import errors. Lives here (not in GPXModels.swift)
+/// because the GPX files are also compiled standalone by scripts/gpx-selfcheck, without `L10n`.
+extension GPXError {
+    @MainActor
+    var localizedText: String {
+        switch self {
+        case .invalidXML(let detail):
+            L10n.tr("This file is not valid XML (\(detail.localizedMessage)).")
+        case .notGPX:
+            L10n.tr("This file is not a GPX document.")
+        case .noRoute:
+            L10n.tr("This GPX file has no route, track or two or more waypoints to follow.")
+        }
+    }
+}
+
 /// State for the manual route editor: tap-to-add waypoints, freehand strokes,
 /// drag/undo/clear, GPX import. Pure drawing state — movement itself is delegated
 /// to `WalkingSimulationController` once the route is finished.

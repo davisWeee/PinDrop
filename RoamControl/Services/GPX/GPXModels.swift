@@ -34,21 +34,6 @@ struct GPXDocument: Equatable, Sendable {
     }
 }
 
-extension GPXError {
-    /// User-facing, localized text (`errorDescription` stays English for non-UI callers and tests).
-    @MainActor
-    var localizedText: String {
-        switch self {
-        case .invalidXML(let detail):
-            L10n.tr("This file is not valid XML (\(detail.localizedMessage)).")
-        case .notGPX:
-            L10n.tr("This file is not a GPX document.")
-        case .noRoute:
-            L10n.tr("This GPX file has no route, track or two or more waypoints to follow.")
-        }
-    }
-}
-
 enum GPXError: Error, Equatable, LocalizedError {
     case invalidXML(String)
     case notGPX
