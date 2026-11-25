@@ -13,6 +13,9 @@ jobs:
         run: |
           xcodebuild -version
           xcrun --sdk iphoneos --show-sdk-version
+          SDK=$(xcrun --sdk iphoneos --show-sdk-path)
+          echo "--- MapKit transport types in SDK ---"
+          grep -rn -i "cycling\|MKDirectionsTransportType" "$SDK/System/Library/Frameworks/MapKit.framework/Headers/" | head -30 || true
       - name: Archive (unsigned)
         run: |
           set -o pipefail; mkdir -p build
