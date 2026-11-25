@@ -2,6 +2,7 @@ import CoreLocation
 import Foundation
 import MapKit
 import Observation
+import SwiftUI
 
 enum WalkingSimulationPhase: Equatable {
     case idle
@@ -79,8 +80,8 @@ final class WalkingSimulationController {
         self.destination = destination
         if let startCoordinate = routePoints.first?.coordinate {
             routeStart = LocationTarget(
-                name: "Route Start",
-                subtitle: "Starting point for \(destination.name)",
+                name: L10n.tr("Route Start"),
+                subtitle: L10n.tr("Starting point for \(destination.name)"),
                 latitude: startCoordinate.latitude,
                 longitude: startCoordinate.longitude
             )

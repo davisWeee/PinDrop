@@ -1,0 +1,183 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "CFBundleDisplayName": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop"
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop"
+          }
+        }
+      }
+    },
+    "NSLocalNetworkUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يستخدم PinDrop الشبكة المحلية للإقران بهذا الـ iPhone والتحكم فيه بأمان عبر LocalDevVPN."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop utilise le réseau local pour s’associer à cet iPhone et le contrôler en toute sécurité via LocalDevVPN."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop verwendet das lokale Netzwerk, um dieses iPhone über LocalDevVPN sicher zu koppeln und zu steuern."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop משתמש ברשת המקומית כדי להתאים ולשלוט ב‑iPhone הזה בצורה מאובטחת דרך LocalDevVPN."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDropは、LocalDevVPNを介してこのiPhoneを安全にペアリングし操作するために、ローカルネットワークを使用します。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop 使用本地网络，通过 LocalDevVPN 与这台 iPhone 安全配对并对其进行控制。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop usa la red local para emparejarse con este iPhone y controlarlo de forma segura mediante LocalDevVPN."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop 使用本機網路，透過 LocalDevVPN 與這部 iPhone 安全配對並對其進行控制。"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop dùng mạng cục bộ để ghép đôi và điều khiển iPhone này một cách an toàn qua LocalDevVPN."
+          }
+        }
+      }
+    },
+    "NSLocationWhenInUseUsageDescription": {
+      "extractionState": "manual",
+      "localizations": {
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يستخدم PinDrop موقعك لعرض موقعك الحقيقي وتوسيط الخريطة عليه بعد توقف جلسة الموقع."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop utilise votre position pour afficher et recentrer la carte sur votre position réelle après l’arrêt d’une session de localisation."
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop verwendet Ihren Standort, um Ihre echte Position anzuzeigen und die Karte darauf zu zentrieren, nachdem eine Standortsitzung beendet wurde."
+          }
+        },
+        "he": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop משתמש במיקום שלך כדי להציג את המיקום האמיתי שלך ולמרכז עליו את המפה לאחר שסשן מיקום נעצר."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDropは、位置情報セッションの停止後に、実際の位置を表示して地図をその位置に合わせるために、お使いの位置情報を使用します。"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop 会使用您的位置，在定位会话停止后显示并将地图居中到您的真实位置。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop usa tu ubicación para mostrar y centrar el mapa en tu posición real después de que se detenga una sesión de ubicación."
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop 會使用您的位置，在定位工作階段停止後顯示並將地圖置中到您的真實位置。"
+          }
+        },
+        "vi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PinDrop dùng vị trí của bạn để hiển thị và căn giữa bản đồ vào vị trí thật sau khi một phiên vị trí dừng lại."
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

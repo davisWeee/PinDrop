@@ -76,10 +76,10 @@ struct PairingSetupView: View {
             if case .paired(let summary) = appModel.pairingStatus {
                 Divider()
 
-                pairingDetail(title: "Fingerprint", value: summary.fingerprint, monospaced: true)
+                pairingDetail(title: L10n.tr("Fingerprint"), value: summary.fingerprint, monospaced: true)
 
                 pairingDetail(
-                    title: "Added",
+                    title: L10n.tr("Added"),
                     value: summary.importedAt.formatted(date: .abbreviated, time: .shortened)
                 )
 
@@ -152,9 +152,9 @@ struct PairingSetupView: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Finish in Settings")
                     .font(.subheadline.weight(.semibold))
-                instructionRow("Open Settings › Privacy & Security › Developer Mode.")
-                instructionRow("Tap Pair with PinDrop.")
-                instructionRow("Use the code shown here when iOS asks for it.")
+                instructionRow(L10n.tr("Open Settings › Privacy & Security › Developer Mode."))
+                instructionRow(L10n.tr("Tap Pair with PinDrop."))
+                instructionRow(L10n.tr("Use the code shown here when iOS asks for it."))
             }
 
         case .showingPIN(let pin):
@@ -200,9 +200,9 @@ struct PairingSetupView: View {
             Text("Before connecting")
                 .font(.headline)
 
-            requirementRow(number: "1", text: "Pair this iPhone here, or import its existing RPPairing file.")
-            requirementRow(number: "2", text: "Install LocalDevVPN and switch it on.")
-            requirementRow(number: "3", text: "Keep Developer Mode enabled on the iPhone.")
+            requirementRow(number: "1", text: L10n.tr("Pair this iPhone here, or import its existing RPPairing file."))
+            requirementRow(number: "2", text: L10n.tr("Install LocalDevVPN and switch it on."))
+            requirementRow(number: "3", text: L10n.tr("Keep Developer Mode enabled on the iPhone."))
 
             Link(destination: localDevVPNURL) {
                 Label("View LocalDevVPN", systemImage: "arrow.up.right.square")
@@ -256,7 +256,7 @@ struct PairingSetupView: View {
 
     private func instructionRow(_ text: String) -> some View {
         HStack(alignment: .top, spacing: 8) {
-            Image(systemName: "chevron.right")
+            Image(systemName: "chevron.forward")
                 .font(.caption.bold())
                 .foregroundStyle(.blue)
                 .padding(.top, 3)
@@ -345,55 +345,55 @@ struct PairingSetupView: View {
 
     private var statusTitle: String {
         switch appModel.onDevicePairing.phase {
-        case .preparing: return "Preparing pairing"
-        case .waitingForSettings: return "Ready in Settings"
-        case .showingPIN: return "Pairing code ready"
-        case .storing: return "Finishing pairing"
-        case .cancelling: return "Stopping pairing"
-        case .failed: return "Pairing problem"
+        case .preparing: return L10n.tr("Preparing pairing")
+        case .waitingForSettings: return L10n.tr("Ready in Settings")
+        case .showingPIN: return L10n.tr("Pairing code ready")
+        case .storing: return L10n.tr("Finishing pairing")
+        case .cancelling: return L10n.tr("Stopping pairing")
+        case .failed: return L10n.tr("Pairing problem")
         case .idle, .success: break
         }
 
         switch appModel.pairingStatus {
-        case .checking: return "Checking this iPhone"
-        case .importing: return "Checking pairing file"
-        case .notPaired: return "Pairing required"
-        case .paired: return "Pairing file ready"
-        case .failed: return "Pairing problem"
+        case .checking: return L10n.tr("Checking this iPhone")
+        case .importing: return L10n.tr("Checking pairing file")
+        case .notPaired: return L10n.tr("Pairing required")
+        case .paired: return L10n.tr("Pairing file ready")
+        case .failed: return L10n.tr("Pairing problem")
         }
     }
 
     private var statusMessage: String {
         switch appModel.onDevicePairing.phase {
         case .preparing:
-            return "Starting a private session on this iPhone."
+            return L10n.tr("Starting a private session on this iPhone.")
         case .waitingForSettings:
-            return "PinDrop is visible to the iOS pairing screen."
+            return L10n.tr("PinDrop is visible to the iOS pairing screen.")
         case .showingPIN:
-            return "Enter the six-digit code in Settings to confirm."
+            return L10n.tr("Enter the six-digit code in Settings to confirm.")
         case .storing:
-            return "The handshake worked. Saving its keys securely."
+            return L10n.tr("The handshake worked. Saving its keys securely.")
         case .cancelling:
-            return "Closing the local session and advertisement."
+            return L10n.tr("Closing the local session and advertisement.")
         case .failed(let message):
-            return message
+            return message.localizedMessage
         case .idle, .success:
             break
         }
 
         switch appModel.pairingStatus {
         case .checking:
-            return "Looking for a securely stored pairing record."
+            return L10n.tr("Looking for a securely stored pairing record.")
         case .importing:
-            return "Validating the record and its keys."
+            return L10n.tr("Validating the record and its keys.")
         case .notPaired:
             return appModel.onDevicePairing.isAvailableOnThisDevice
-                ? "Create the pairing securely on this iPhone, or import an existing file."
-                : "Connect your physical iPhone to create the pairing, or import an existing file."
+                ? L10n.tr("Create the pairing securely on this iPhone, or import an existing file.")
+                : L10n.tr("Connect your physical iPhone to create the pairing, or import an existing file.")
         case .paired:
-            return "PinDrop can use this record when the LocalDevVPN session layer is connected."
+            return L10n.tr("PinDrop can use this record when the LocalDevVPN session layer is connected.")
         case .failed(let message):
-            return message
+            return message.localizedMessage
         }
     }
 }

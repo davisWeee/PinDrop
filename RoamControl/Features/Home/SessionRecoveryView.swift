@@ -74,21 +74,21 @@ struct SessionRecoveryView: View {
 
             VStack(spacing: 10) {
                 recoveryDetail(
-                    title: recovery.isWalkingRoute ? "Last saved point" : "Last location",
+                    title: L10n.tr(recovery.isWalkingRoute ? "Last saved point" : "Last location"),
                     value: recovery.lastReportedLocation.name,
                     symbol: "mappin.and.ellipse"
                 )
 
                 if let destination = recovery.destination, recovery.isWalkingRoute {
                     recoveryDetail(
-                        title: "Destination",
+                        title: L10n.tr("Destination"),
                         value: destination.name,
                         symbol: "flag.checkered"
                     )
                 }
 
                 recoveryDetail(
-                    title: "Last active",
+                    title: L10n.tr("Last active"),
                     value: recovery.updatedAt.formatted(date: .abbreviated, time: .shortened),
                     symbol: "clock"
                 )
@@ -99,7 +99,7 @@ struct SessionRecoveryView: View {
             if isResuming || isRestoring {
                 HStack(spacing: 10) {
                     ProgressView()
-                    Text(isRestoring ? "Restoring real location…" : "Preparing the route…")
+                    Text(isRestoring ? LocalizedStringKey("Restoring real location…") : LocalizedStringKey("Preparing the route…"))
                         .font(.subheadline.weight(.semibold))
                 }
                 .frame(maxWidth: .infinity)
@@ -136,7 +136,7 @@ struct SessionRecoveryView: View {
             }
 
             if let errorMessage {
-                Text(errorMessage)
+                Text(errorMessage.localizedMessage)
                     .font(.caption)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
@@ -156,7 +156,7 @@ struct SessionRecoveryView: View {
             return "PinDrop did not receive a normal end signal while \(recovery.travelMode.lowercasedTitle) to \(destination.name). You can continue from the last saved point or safely restore your real location."
         }
 
-        return "PinDrop did not receive a normal end signal for the location at \(recovery.lastReportedLocation.name). Choose what this iPhone should do next."
+        return L10n.tr("PinDrop did not receive a normal end signal for the location at \(recovery.lastReportedLocation.name). Choose what this iPhone should do next.")
     }
 
     private var resumeTitle: String {

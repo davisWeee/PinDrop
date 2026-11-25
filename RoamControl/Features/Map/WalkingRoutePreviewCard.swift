@@ -142,7 +142,7 @@ struct WalkingRoutePreviewCard: View {
     @ViewBuilder
     private var routeMetrics: some View {
         let distance = RouteMetric(
-            title: showsProgress ? "Remaining" : "Distance",
+            title: L10n.tr(showsProgress ? "Remaining" : "Distance"),
             value: distanceText,
             symbol: "point.topleft.down.to.point.bottomright.curvepath"
         )
@@ -152,7 +152,7 @@ struct WalkingRoutePreviewCard: View {
             symbol: simulation.phase == .arrived ? "checkmark.circle" : "clock"
         )
         let arrival = RouteMetric(
-            title: "Arrive",
+            title: L10n.tr("Arrive"),
             value: arrivalText,
             symbol: "flag.checkered"
         )
@@ -251,7 +251,7 @@ struct WalkingRoutePreviewCard: View {
     private var pauseButton: some View {
                 Button(action: onTogglePause) {
                     Label(
-                        simulation.phase == .paused ? "Resume" : "Pause",
+                        simulation.phase == .paused ? LocalizedStringKey("Resume") : LocalizedStringKey("Pause"),
                         systemImage: simulation.phase == .paused ? "play.fill" : "pause.fill"
                     )
                     .frame(maxWidth: .infinity)
@@ -351,7 +351,7 @@ struct WalkingRoutePreviewCard: View {
             EmptyView()
 
         case .failed(let message):
-            Text(message)
+            Text(message.localizedMessage)
                 .font(.caption)
                 .foregroundStyle(.red)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -386,7 +386,7 @@ struct WalkingRoutePreviewCard: View {
         }
     }
 
-    private var phaseTitle: String {
+    private var phaseTitle: LocalizedStringKey {
         switch simulation.phase {
         case .idle: "\(mode.title) route"
         case .preparing: "Preparing \(mode.lowercasedTitle)"
@@ -401,13 +401,13 @@ struct WalkingRoutePreviewCard: View {
     private var phaseSubtitle: String {
         switch simulation.phase {
         case .idle, .preparing, .failed:
-            "Current Location to \(destination.name)"
+            L10n.tr("Current Location to \(destination.name)")
         case .walking, .paused:
-            "Heading to \(destination.name) · \(Int((simulation.progress * 100).rounded()))%"
+            L10n.tr("Heading to \(destination.name) · \(Int((simulation.progress * 100).rounded()))%")
         case .arrived:
-            "Location active at \(destination.name)"
+            L10n.tr("Location active at \(destination.name)")
         case .stopping:
-            "Restoring this iPhone's real location"
+            L10n.tr("Restoring this iPhone's real location")
         }
     }
 

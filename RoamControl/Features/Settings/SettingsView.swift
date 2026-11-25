@@ -12,6 +12,8 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
+                LanguageSection()
+
                 Section("Appearance") {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Theme")
@@ -135,17 +137,17 @@ struct SettingsView: View {
                 resetError = nil
             }
         } message: {
-            Text(resetError ?? "Please try again.")
+            Text(resetError ?? L10n.tr("Please try again."))
         }
     }
 
     private var connectionLabel: String {
         switch appModel.connectionState {
-        case .notConfigured: "Not paired"
-        case .ready: "Ready"
-        case .connecting: "Connecting"
-        case .active: "Active"
-        case .failed: "Problem"
+        case .notConfigured: L10n.tr("Not paired")
+        case .ready: L10n.tr("Ready")
+        case .connecting: L10n.tr("Connecting")
+        case .active: L10n.tr("Active")
+        case .failed: L10n.tr("Problem")
         }
     }
 
@@ -222,7 +224,7 @@ struct SettingsView: View {
                 Spacer()
                 Text(connectionLabel)
                     .foregroundStyle(.secondary)
-                Image(systemName: "chevron.right")
+                Image(systemName: "chevron.forward")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.tertiary)
             }
@@ -250,7 +252,7 @@ struct SettingsView: View {
 
     private var buildNumberText: String {
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String
-        return build ?? "Unknown"
+        return build ?? L10n.tr("Unknown")
     }
 
     private var buildDateText: String {
@@ -267,7 +269,7 @@ struct SettingsView: View {
             let executableURL = Bundle.main.executableURL,
             let values = try? executableURL.resourceValues(forKeys: [.contentModificationDateKey]),
             let buildDate = values.contentModificationDate
-        else { return "Unknown" }
+        else { return L10n.tr("Unknown") }
 
         return buildDate.formatted(date: .abbreviated, time: .shortened)
     }

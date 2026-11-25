@@ -353,7 +353,7 @@ struct ManualRouteCard: View {
 
     private var exportButton: some View {
         Group {
-            if let file = builder.exportFile(metresPerSecond: simulation.pace.metresPerSecond) {
+            if let file = builder.exportFile(metresPerSecond: simulation.speed) {
                 ShareLink(
                     item: file,
                     preview: SharePreview(file.name)
@@ -372,15 +372,23 @@ struct ManualRouteCard: View {
     }
 
     private var pacePicker: some View {
-        Picker(
-            "Pace",
-            selection: Binding(get: { simulation.pace }, set: { simulation.pace = $0 })
+        let mode = simulation.mode
+        let factor = RoutePreferences.shared.displaySpeedFactor
+        let range = mode.speedRangeMetresPerSecond
+        return Stepper(
+            value: Binding(
+                get: { simulation.speed * factor },
+                set: { simulation.speed = RoutePreferences.clamp($0 / factor, for: mode) }
+            ),
+            in: (range.lowerBound * factor)...(range.upperBound * factor),
+            step: mode.speedStep
         ) {
-            ForEach(WalkingPace.allCases) { pace in
-                Text(pace.title).tag(pace)
+            HStack {
+                Label("Speed", systemImage: "speedometer")
+                Spacer(minLength: 8)
+                Text(RouteFormat.speed(simulation.speed)).monospacedDigit()
             }
         }
-        .pickerStyle(.segmented)
     }
 
     private func metrics(
@@ -423,7 +431,7 @@ struct ManualRouteCard: View {
     }
 
     private func duration(for distance: Double) -> TimeInterval {
-        distance / max(simulation.pace.metresPerSecond, 0.1)
+        distance / max(simulation.speed, 0.1)
     }
 
     private var canEdit: Bool {
