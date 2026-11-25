@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var mapModel = MapViewModel()
     @State private var walkingRoutePlanner = WalkingRoutePlanner()
     @State private var walkingSimulation = WalkingSimulationController()
+    @State private var manualRoute = ManualRouteBuilder()
     @State private var isShowingDeviceSetup: Bool
     @State private var isShowingSettings: Bool
     @State private var isShowingSavedPlaces = false
@@ -34,6 +35,8 @@ struct HomeView: View {
                             .stroke(.blue, lineWidth: 6)
                     }
 
+                    ManualRouteMapContent(builder: manualRoute, proxy: proxy)
+
                     if shouldShowRealLocation {
                         UserAnnotation()
                     }
@@ -55,6 +58,7 @@ struct HomeView: View {
                     }
                 }
                 .roamControlMapStyle(appModel.mapDisplayStyle)
+                .overlay { ManualRouteFreehandLayer(builder: manualRoute, proxy: proxy) }
                 .mapControls {
                     MapScaleView()
                 }
@@ -69,6 +73,7 @@ struct HomeView: View {
 
                     guard !walkingSimulation.locksDestination else { return }
                     guard let coordinate = proxy.convert(point, from: .local) else { return }
+                    if manualRoute.consumeMapTap(coordinate) { return }
                     Task { await mapModel.selectDroppedPin(at: coordinate) }
                 }
             }
@@ -111,6 +116,11 @@ struct HomeView: View {
                     Spacer()
 
                     HStack(spacing: 10) {
+                        ManualRouteMenuButton(
+                            builder: manualRoute,
+                            isDisabled: walkingSimulation.locksDestination
+                        )
+
                         Button {
                             isShowingSavedPlaces = true
                         } label: {
@@ -216,8 +226,14 @@ struct HomeView: View {
                     }
                 }
 
-                if let route = walkingRoutePlanner.route,
-                   let destination = walkingRoutePlanner.destination {
+                if manualRoute.isActive {
+                    ManualRouteCard(
+                        builder: manualRoute,
+                        simulation: walkingSimulation,
+                        isPaired: isPaired
+                    )
+                } else if let route = walkingRoutePlanner.route,
+                          let destination = walkingRoutePlanner.destination {
                     WalkingRoutePreviewCard(
                         route: route,
                         destination: walkingSimulation.destination ?? destination,
@@ -432,6 +448,12 @@ struct HomeView: View {
             shouldRefreshRealLocationWhenActive = false
             mapModel.showRealLocationAfterSession()
         }
+        .manualRouteSupport(
+            manualRoute,
+            simulation: walkingSimulation,
+            onFit: { mapModel.cameraPosition = .rect($0) },
+            onActivate: { walkingRoutePlanner.clear() }
+        )
         .sheet(isPresented: $isShowingDeviceSetup) {
             PairingSetupView()
                 .environment(appModel)

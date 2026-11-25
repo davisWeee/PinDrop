@@ -90,6 +90,32 @@ final class WalkingSimulationController {
         phase = routePoints.count >= 2 ? .idle : .failed("This \(mode.lowercasedTitle) route does not contain enough detail to simulate movement.")
     }
 
+    /// Prepares an arbitrary polyline (manual route / GPX import) for the same simulation pipeline.
+    func prepare(coordinates: [CLLocationCoordinate2D], destination: LocationTarget) {
+        movementTask?.cancel()
+        movementTask = nil
+
+        routePoints = coordinates.map { MKMapPoint($0) }
+        cumulativeDistances = cumulativeDistanceValues(for: routePoints)
+        totalDistance = cumulativeDistances.last ?? 0
+        distanceTravelled = 0
+        currentCoordinate = nil
+        self.destination = destination
+        if let startCoordinate = routePoints.first?.coordinate {
+            routeStart = LocationTarget(
+                name: "Route Start",
+                subtitle: "Starting point for \(destination.name)",
+                latitude: startCoordinate.latitude,
+                longitude: startCoordinate.longitude
+            )
+        } else {
+            routeStart = nil
+        }
+        phase = routePoints.count >= 2 && totalDistance > 0
+            ? .idle
+            : .failed("This route does not contain enough detail to simulate movement.")
+    }
+
     func prepareReturnTrip() -> LocationTarget? {
         guard
             phase == .arrived,
