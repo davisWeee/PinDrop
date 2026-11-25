@@ -51,8 +51,9 @@ final class LanguageSettings {
     private(set) var selection: AppLanguage
 
     private init() {
-        let raw = UserDefaults.standard.string(forKey: Self.storageKey) ?? ""
-        selection = AppLanguage(rawValue: raw) ?? .system
+        // First launch defaults to Simplified Chinese; the Settings picker can switch to any language or System.
+        let raw = UserDefaults.standard.string(forKey: Self.storageKey) ?? AppLanguage.simplifiedChinese.rawValue
+        selection = AppLanguage(rawValue: raw) ?? .simplifiedChinese
     }
 
     func select(_ language: AppLanguage) {
