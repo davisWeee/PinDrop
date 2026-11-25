@@ -44,8 +44,8 @@ struct HomeView: View {
                     }
 
                     if let coordinate = walkingSimulation.currentCoordinate {
-                        Annotation("Walking location", coordinate: coordinate) {
-                            Image(systemName: "figure.walk.circle.fill")
+                        Annotation("\(walkingSimulation.mode.title) location", coordinate: coordinate) {
+                            Image(systemName: walkingSimulation.mode.markerSymbol)
                                 .font(.title.weight(.semibold))
                                 .foregroundStyle(.white, .green)
                                 .padding(4)
@@ -223,6 +223,10 @@ struct HomeView: View {
                         destination: walkingSimulation.destination ?? destination,
                         simulation: walkingSimulation,
                         isPaired: isPaired,
+                        isApproximated: walkingRoutePlanner.isApproximated,
+                        onChangeMode: { newMode in
+                            previewRoute(to: walkingSimulation.destination ?? destination, mode: newMode)
+                        },
                         onStart: {
                             Task { await walkingSimulation.start(using: appModel) }
                         },
@@ -255,6 +259,7 @@ struct HomeView: View {
                         sessionPhase: appModel.deviceSession.phase,
                         localDevVPNInstallURL: appModel.localDevVPNInstallURL,
                         isPreviewingWalkingRoute: walkingRoutePlanner.isLoading,
+                        previewingMode: walkingRoutePlanner.mode,
                         walkingRouteError: walkingRoutePlanner.errorMessage,
                         onToggleFavourite: {
                             guard let target = mapModel.selectedLocation else { return }
@@ -274,14 +279,9 @@ struct HomeView: View {
                             mapModel.show(target)
                             Task { await appModel.startLocationSession(at: target) }
                         },
-                        onPreviewWalkingRoute: {
+                        onPreviewRoute: { mode in
                             guard let target = mapModel.selectedLocation else { return }
-                            Task {
-                                if let route = await walkingRoutePlanner.preview(to: target) {
-                                    walkingSimulation.prepare(route: route, destination: target)
-                                    mapModel.show(route)
-                                }
-                            }
+                            previewRoute(to: target, mode: mode)
                         },
                         onStart: {
                             guard let target = mapModel.selectedLocation else { return }
@@ -537,6 +537,16 @@ struct HomeView: View {
         }
     }
 
+    /// Plans a route for `mode` and, on success, prepares the simulation.
+    private func previewRoute(to target: LocationTarget, mode: RouteTravelMode) {
+        Task { @MainActor in
+            if let route = await walkingRoutePlanner.preview(to: target, mode: mode) {
+                walkingSimulation.prepare(route: route, destination: target, mode: mode)
+                mapModel.show(route)
+            }
+        }
+    }
+
     private func resumeInterruptedSession(_ recovery: SessionRecoveryRecord) {
         recoveredWalkError = nil
 
@@ -549,25 +559,28 @@ struct HomeView: View {
 
         isPreparingRecoveredWalk = true
         Task { @MainActor in
+            let recoveredMode = recovery.travelMode
             let route = await walkingRoutePlanner.preview(
                 to: destination,
-                from: recovery.lastReportedLocation
+                from: recovery.lastReportedLocation,
+                mode: recoveredMode
             )
             guard let route else {
                 recoveredWalkError = walkingRoutePlanner.errorMessage
-                    ?? "The remaining walking route could not be prepared."
+                    ?? "The remaining \(recoveredMode.lowercasedTitle) route could not be prepared."
                 isPreparingRecoveredWalk = false
                 return
             }
 
             appModel.dismissInterruptedSessionRecovery()
-            walkingSimulation.prepare(route: route, destination: destination)
-            if
-                let rawPace = recovery.walkingPaceMetresPerSecond,
-                let recoveredPace = WalkingPace(rawValue: rawPace)
-            {
-                walkingSimulation.pace = recoveredPace
-            }
+            walkingSimulation.prepare(
+                route: route,
+                destination: destination,
+                mode: recoveredMode,
+                speed: recovery.walkingPaceMetresPerSecond.map {
+                    RoutePreferences.clamp($0, for: recoveredMode)
+                }
+            )
             mapModel.show(route)
             isPreparingRecoveredWalk = false
             await walkingSimulation.start(using: appModel)

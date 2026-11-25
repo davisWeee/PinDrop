@@ -11,12 +11,13 @@ struct LocationSelectionCard: View {
     let sessionPhase: DeviceSessionPhase
     let localDevVPNInstallURL: URL
     let isPreviewingWalkingRoute: Bool
+    let previewingMode: RouteTravelMode
     let walkingRouteError: String?
     let onToggleFavourite: () -> Void
     let onClearSelection: () -> Void
     let onDismissLast: () -> Void
     let onResumeLast: () -> Void
-    let onPreviewWalkingRoute: () -> Void
+    let onPreviewRoute: (RouteTravelMode) -> Void
     let onStart: () -> Void
     let onStop: () -> Void
 
@@ -62,21 +63,7 @@ struct LocationSelectionCard: View {
                 .disabled(isPrimaryDisabled)
 
                 if canPreviewWalkingRoute {
-                    Button(action: onPreviewWalkingRoute) {
-                        HStack(spacing: 8) {
-                            if isPreviewingWalkingRoute {
-                                ProgressView()
-                                    .controlSize(.small)
-                            } else {
-                                Image(systemName: "figure.walk")
-                            }
-                            Text(isPreviewingWalkingRoute ? "Planning Walking Route…" : "Preview Walking Route")
-                        }
-                        .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.bordered)
-                    .controlSize(.large)
-                    .disabled(isPreviewingWalkingRoute)
+                    routeModeButtons
                 }
 
                 if let walkingRouteError {
@@ -349,6 +336,37 @@ struct LocationSelectionCard: View {
             true
         case .openingLocalDevVPN, .discovering, .connecting, .active, .stopping:
             false
+        }
+    }
+
+    /// One button per travel mode; planning a route shows a spinner on its button.
+    @ViewBuilder
+    private var routeModeButtons: some View {
+        let layout = dynamicTypeSize.isAccessibilitySize
+            ? AnyLayout(VStackLayout(spacing: 8))
+            : AnyLayout(HStackLayout(spacing: 8))
+        layout {
+            ForEach(RouteTravelMode.allCases) { mode in
+                Button {
+                    onPreviewRoute(mode)
+                } label: {
+                    HStack(spacing: 6) {
+                        if isPreviewingWalkingRoute && previewingMode == mode {
+                            ProgressView()
+                                .controlSize(.small)
+                        } else {
+                            Image(systemName: mode.symbol)
+                        }
+                        Text(mode.shortTitle)
+                            .lineLimit(1)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .disabled(isPreviewingWalkingRoute)
+                .accessibilityLabel("Preview \(mode.lowercasedTitle) route")
+            }
         }
     }
 

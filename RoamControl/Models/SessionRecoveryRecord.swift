@@ -10,8 +10,14 @@ struct SessionRecoveryRecord: Codable, Equatable {
     var lastReportedLocation: LocationTarget
     var destination: LocationTarget?
     var walkingPaceMetresPerSecond: Double?
+    /// Raw `RouteTravelMode`; nil in records written before driving/cycling existed.
+    var travelModeRawValue: String?
     let startedAt: Date
     var updatedAt: Date
+
+    var travelMode: RouteTravelMode {
+        travelModeRawValue.flatMap(RouteTravelMode.init(rawValue:)) ?? .walking
+    }
 
     var isWalkingRoute: Bool {
         kind == .walkingRoute && destination != nil
@@ -23,6 +29,7 @@ struct SessionRecoveryRecord: Codable, Equatable {
             lastReportedLocation: target,
             destination: nil,
             walkingPaceMetresPerSecond: nil,
+            travelModeRawValue: nil,
             startedAt: .now,
             updatedAt: .now
         )
@@ -31,13 +38,15 @@ struct SessionRecoveryRecord: Codable, Equatable {
     static func walking(
         from start: LocationTarget,
         to destination: LocationTarget,
-        paceMetresPerSecond: Double
+        paceMetresPerSecond: Double,
+        mode: RouteTravelMode = .walking
     ) -> SessionRecoveryRecord {
         SessionRecoveryRecord(
             kind: .walkingRoute,
             lastReportedLocation: start,
             destination: destination,
             walkingPaceMetresPerSecond: paceMetresPerSecond,
+            travelModeRawValue: mode.rawValue,
             startedAt: .now,
             updatedAt: .now
         )

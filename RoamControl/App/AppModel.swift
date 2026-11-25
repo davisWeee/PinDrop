@@ -211,6 +211,7 @@ final class AppModel {
         shouldPresentDeviceSetup = false
         hasCompletedOnboarding = false
         usageAnalytics.revokeLocalIdentity()
+        RoutePreferences.shared.reload()
     }
 
     func restorePairingStatus() async {
@@ -281,7 +282,8 @@ final class AppModel {
     func startWalkingLocationSession(
         at initialTarget: LocationTarget,
         destination: LocationTarget,
-        paceMetresPerSecond: Double
+        paceMetresPerSecond: Double,
+        mode: RouteTravelMode = .walking
     ) async {
         await startLocationSession(
             at: initialTarget,
@@ -290,7 +292,8 @@ final class AppModel {
             recovery: .walking(
                 from: initialTarget,
                 to: destination,
-                paceMetresPerSecond: paceMetresPerSecond
+                paceMetresPerSecond: paceMetresPerSecond,
+                mode: mode
             )
         )
     }

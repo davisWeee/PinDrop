@@ -56,7 +56,7 @@ struct SessionRecoveryView: View {
                         height: dynamicTypeSize.isAccessibilitySize ? 66 : 78
                     )
 
-                Image(systemName: recovery.isWalkingRoute ? "figure.walk.motion" : "location.fill")
+                Image(systemName: recovery.isWalkingRoute ? recovery.travelMode.startSymbol : "location.fill")
                     .font(.system(size: 31, weight: .semibold))
                     .foregroundStyle(.white)
             }
@@ -108,7 +108,7 @@ struct SessionRecoveryView: View {
                     .foregroundStyle(.secondary)
             } else {
                 Button(action: onResume) {
-                    Label(resumeTitle, systemImage: recovery.isWalkingRoute ? "figure.walk" : "arrow.clockwise")
+                    Label(resumeTitle, systemImage: recovery.isWalkingRoute ? recovery.travelMode.symbol : "arrow.clockwise")
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
@@ -153,14 +153,14 @@ struct SessionRecoveryView: View {
 
     private var summaryText: String {
         if let destination = recovery.destination, recovery.isWalkingRoute {
-            return "PinDrop did not receive a normal end signal while walking to \(destination.name). You can continue from the last saved point or safely restore your real location."
+            return "PinDrop did not receive a normal end signal while \(recovery.travelMode.lowercasedTitle) to \(destination.name). You can continue from the last saved point or safely restore your real location."
         }
 
         return "PinDrop did not receive a normal end signal for the location at \(recovery.lastReportedLocation.name). Choose what this iPhone should do next."
     }
 
     private var resumeTitle: String {
-        recovery.isWalkingRoute ? "Resume Walking" : "Resume Location"
+        recovery.isWalkingRoute ? "Resume \(recovery.travelMode.title)" : "Resume Location"
     }
 
     private func recoveryDetail(title: String, value: String, symbol: String) -> some View {

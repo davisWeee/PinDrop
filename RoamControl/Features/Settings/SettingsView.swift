@@ -30,6 +30,14 @@ struct SettingsView: View {
                     .padding(.vertical, 4)
                 }
 
+                Section("Routes") {
+                    NavigationLink {
+                        RouteSettingsView()
+                    } label: {
+                        Label("Speeds & Units", systemImage: "speedometer")
+                    }
+                }
+
                 Section("Device") {
                     NavigationLink {
                         ConnectionHealthView()

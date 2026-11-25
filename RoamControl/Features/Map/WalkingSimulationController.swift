@@ -3,24 +3,6 @@ import Foundation
 import MapKit
 import Observation
 
-enum WalkingPace: Double, CaseIterable, Identifiable {
-    case relaxed = 1.0
-    case normal = 1.4
-    case brisk = 1.8
-
-    var id: Self { self }
-
-    var title: String {
-        switch self {
-        case .relaxed: "Relaxed"
-        case .normal: "Normal"
-        case .brisk: "Brisk"
-        }
-    }
-
-    var metresPerSecond: Double { rawValue }
-}
-
 enum WalkingSimulationPhase: Equatable {
     case idle
     case preparing
@@ -38,7 +20,10 @@ final class WalkingSimulationController {
     private(set) var currentCoordinate: CLLocationCoordinate2D?
     private(set) var distanceTravelled: CLLocationDistance = 0
     private(set) var totalDistance: CLLocationDistance = 0
-    var pace: WalkingPace = .normal
+    private(set) var mode: RouteTravelMode = .walking
+    /// Simulated speed in metres per second. Initialised from the user's
+    /// per-mode setting in `prepare`; adjustable until the trip starts.
+    var speed: Double = RouteTravelMode.walking.defaultSpeedMetresPerSecond
 
     @ObservationIgnored
     private var routePoints: [MKMapPoint] = []
@@ -61,7 +46,7 @@ final class WalkingSimulationController {
     }
 
     var remainingDuration: TimeInterval {
-        remainingDistance / pace.metresPerSecond
+        remainingDistance / max(speed, 0.1)
     }
 
     var locksDestination: Bool {
@@ -73,7 +58,14 @@ final class WalkingSimulationController {
         }
     }
 
-    func prepare(route: MKRoute, destination: LocationTarget) {
+    func prepare(
+        route: MKRoute,
+        destination: LocationTarget,
+        mode: RouteTravelMode = .walking,
+        speed: Double? = nil
+    ) {
+        self.mode = mode
+        self.speed = speed ?? RoutePreferences.shared.speedMetresPerSecond(for: mode)
         movementTask?.cancel()
         movementTask = nil
 
@@ -95,7 +87,7 @@ final class WalkingSimulationController {
         } else {
             routeStart = nil
         }
-        phase = routePoints.count >= 2 ? .idle : .failed("This walking route does not contain enough detail to simulate movement.")
+        phase = routePoints.count >= 2 ? .idle : .failed("This \(mode.lowercasedTitle) route does not contain enough detail to simulate movement.")
     }
 
     func prepareReturnTrip() -> LocationTarget? {
@@ -126,7 +118,7 @@ final class WalkingSimulationController {
             phase == .idle || isFailed
         else { return }
         guard case .paired = appModel.pairingStatus else {
-            phase = .failed("Pair this iPhone before starting a walking session.")
+            phase = .failed("Pair this iPhone before starting a \(mode.lowercasedTitle) session.")
             return
         }
 
@@ -138,11 +130,12 @@ final class WalkingSimulationController {
         await appModel.startWalkingLocationSession(
             at: movementTarget(at: routePoints[0].coordinate, destination: destination),
             destination: destination,
-            paceMetresPerSecond: pace.metresPerSecond
+            paceMetresPerSecond: speed,
+            mode: mode
         )
 
         if case .idle = appModel.deviceSession.phase, phase == .preparing {
-            phase = .failed("PinDrop could not start the walking session.")
+            phase = .failed("PinDrop could not start the \(mode.lowercasedTitle) session.")
         }
     }
 
@@ -248,11 +241,11 @@ final class WalkingSimulationController {
 
                 self.distanceTravelled = min(
                     self.totalDistance,
-                    self.distanceTravelled + (self.pace.metresPerSecond * elapsed)
+                    self.distanceTravelled + (self.speed * elapsed)
                 )
 
                 guard let coordinate = self.coordinate(at: self.distanceTravelled) else {
-                    self.phase = .failed("PinDrop could not follow this walking route.")
+                    self.phase = .failed("PinDrop could not follow this \(mode.lowercasedTitle) route.")
                     return
                 }
 
@@ -263,7 +256,7 @@ final class WalkingSimulationController {
                     : self.movementTarget(at: coordinate, destination: destination)
 
                 guard deviceSession.updateLocation(target) == .updated else {
-                    self.phase = .failed("The active location session ended before the walk finished.")
+                    self.phase = .failed("The active location session ended before the \(mode.lowercasedTitle) trip finished.")
                     return
                 }
 
@@ -318,7 +311,7 @@ final class WalkingSimulationController {
         destination: LocationTarget
     ) -> LocationTarget {
         LocationTarget(
-            name: "Walking to \(destination.name)",
+            name: "\(mode.title) to \(destination.name)",
             subtitle: "\(Int((progress * 100).rounded()))% complete",
             latitude: coordinate.latitude,
             longitude: coordinate.longitude

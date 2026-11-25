@@ -8,6 +8,8 @@ struct WalkingRoutePreviewCard: View {
     let destination: LocationTarget
     let simulation: WalkingSimulationController
     let isPaired: Bool
+    let isApproximated: Bool
+    let onChangeMode: (RouteTravelMode) -> Void
     let onStart: () -> Void
     let onTogglePause: () -> Void
     let onWalkBack: () -> Void
@@ -16,6 +18,8 @@ struct WalkingRoutePreviewCard: View {
     let onDone: () -> Void
 
     @State private var isConfirmingStop = false
+
+    private var mode: RouteTravelMode { simulation.mode }
 
     var body: some View {
         Group {
@@ -32,12 +36,12 @@ struct WalkingRoutePreviewCard: View {
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .shadow(color: .black.opacity(0.15), radius: 18, y: 8)
         .confirmationDialog(
-            "Stop walking and restore your real location?",
+            "Stop \(mode.lowercasedTitle) and restore your real location?",
             isPresented: $isConfirmingStop,
             titleVisibility: .visible
         ) {
             Button("Stop & Restore", role: .destructive, action: onStop)
-            Button("Keep Walking", role: .cancel) {}
+            Button("Keep \(mode.title)", role: .cancel) {}
         } message: {
             Text("Your route progress will be reset.")
         }
@@ -71,7 +75,7 @@ struct WalkingRoutePreviewCard: View {
                             .frame(width: 44, height: 44)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Close walking route")
+                    .accessibilityLabel("Close \(mode.lowercasedTitle) route")
                 }
             }
 
@@ -83,7 +87,8 @@ struct WalkingRoutePreviewCard: View {
             routeMetrics
 
             if canChoosePace {
-                pacePicker
+                modePicker
+                speedStepper
             }
 
             controls
@@ -92,22 +97,46 @@ struct WalkingRoutePreviewCard: View {
     }
 
     @ViewBuilder
-    private var pacePicker: some View {
+    private var modePicker: some View {
         if dynamicTypeSize.isAccessibilitySize {
-            Picker("Walking pace", selection: paceBinding) {
-                ForEach(WalkingPace.allCases) { pace in
-                    Text(pace.title).tag(pace)
+            Picker("Travel mode", selection: modeBinding) {
+                ForEach(RouteTravelMode.allCases) { mode in
+                    Label(mode.title, systemImage: mode.symbol).tag(mode)
                 }
             }
             .pickerStyle(.menu)
         } else {
-            Picker("Walking pace", selection: paceBinding) {
-                ForEach(WalkingPace.allCases) { pace in
-                    Text(pace.title).tag(pace)
+            Picker("Travel mode", selection: modeBinding) {
+                ForEach(RouteTravelMode.allCases) { mode in
+                    Label(mode.shortTitle, systemImage: mode.symbol).tag(mode)
                 }
             }
             .pickerStyle(.segmented)
         }
+    }
+
+    private var speedStepper: some View {
+        let factor = RoutePreferences.shared.displaySpeedFactor
+        let range = mode.speedRangeMetresPerSecond
+        return Stepper(
+            value: Binding(
+                get: { simulation.speed * factor },
+                set: { simulation.speed = RoutePreferences.clamp($0 / factor, for: mode) }
+            ),
+            in: (range.lowerBound * factor)...(range.upperBound * factor),
+            step: mode.speedStep
+        ) {
+            HStack {
+                Label("Speed", systemImage: "speedometer")
+                    .font(.subheadline)
+                Spacer(minLength: 8)
+                Text(RouteFormat.speed(simulation.speed))
+                    .font(.subheadline.weight(.semibold))
+                    .monospacedDigit()
+            }
+        }
+        .accessibilityLabel("\(mode.title) speed")
+        .accessibilityValue(RouteFormat.speed(simulation.speed))
     }
 
     @ViewBuilder
@@ -118,7 +147,7 @@ struct WalkingRoutePreviewCard: View {
             symbol: "point.topleft.down.to.point.bottomright.curvepath"
         )
         let duration = RouteMetric(
-            title: simulation.phase == .arrived ? "Status" : "Walking",
+            title: simulation.phase == .arrived ? "Status" : mode.title,
             value: durationText,
             symbol: simulation.phase == .arrived ? "checkmark.circle" : "clock"
         )
@@ -148,7 +177,7 @@ struct WalkingRoutePreviewCard: View {
         switch simulation.phase {
         case .idle:
             Button(action: onStart) {
-                Label("Start Walking", systemImage: "figure.walk.motion")
+                Label("Start \(mode.title)", systemImage: mode.startSymbol)
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
@@ -158,7 +187,7 @@ struct WalkingRoutePreviewCard: View {
         case .preparing:
             HStack(spacing: 10) {
                 ProgressView()
-                Text("Starting walking session…")
+                Text("Starting \(mode.lowercasedTitle) session…")
                     .font(.subheadline.weight(.medium))
             }
             .frame(maxWidth: .infinity)
@@ -180,7 +209,7 @@ struct WalkingRoutePreviewCard: View {
 
         case .arrived:
             Button(action: onWalkBack) {
-                Label("Walk Route Back", systemImage: "arrow.uturn.backward")
+                Label("\(mode.shortTitle) Route Back", systemImage: "arrow.uturn.backward")
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
@@ -246,7 +275,7 @@ struct WalkingRoutePreviewCard: View {
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.large)
-                .accessibilityLabel("Stop walking and restore real location")
+                .accessibilityLabel("Stop \(mode.lowercasedTitle) and restore real location")
     }
 
     private var newLocationButton: some View {
@@ -281,8 +310,10 @@ struct WalkingRoutePreviewCard: View {
         switch simulation.phase {
         case .idle:
             Text(isPaired
-                 ? "Your location will move along this route at the selected pace."
-                 : "Pair this iPhone before starting a walking session.")
+                 ? (isApproximated
+                    ? "Cycling directions aren't available here, so your location follows the walking path at cycling speed."
+                    : "Your location will move along this route at the selected speed.")
+                 : "Pair this iPhone before starting a \(mode.lowercasedTitle) session.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -296,7 +327,7 @@ struct WalkingRoutePreviewCard: View {
                 .fixedSize(horizontal: false, vertical: true)
 
         case .walking:
-            Text("Keep PinDrop running. You can use other apps while the walk continues.")
+            Text("Keep PinDrop running. You can use other apps while the trip continues.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -357,13 +388,13 @@ struct WalkingRoutePreviewCard: View {
 
     private var phaseTitle: String {
         switch simulation.phase {
-        case .idle: "Walking route"
-        case .preparing: "Preparing walk"
-        case .walking: "Walking"
-        case .paused: "Walk paused"
+        case .idle: "\(mode.title) route"
+        case .preparing: "Preparing \(mode.lowercasedTitle)"
+        case .walking: mode.title
+        case .paused: "\(mode.title) paused"
         case .arrived: "Arrived"
-        case .stopping: "Ending walk"
-        case .failed: "Walking unavailable"
+        case .stopping: "Ending \(mode.lowercasedTitle)"
+        case .failed: "\(mode.title) unavailable"
         }
     }
 
@@ -382,7 +413,7 @@ struct WalkingRoutePreviewCard: View {
 
     private var phaseSymbol: String {
         switch simulation.phase {
-        case .idle, .preparing, .walking: "figure.walk"
+        case .idle, .preparing, .walking: mode.symbol
         case .paused: "pause.circle.fill"
         case .arrived: "checkmark.circle.fill"
         case .stopping: "location.slash.fill"
@@ -398,67 +429,37 @@ struct WalkingRoutePreviewCard: View {
         }
     }
 
-    private var paceBinding: Binding<WalkingPace> {
+    private var modeBinding: Binding<RouteTravelMode> {
         Binding(
-            get: { simulation.pace },
-            set: { simulation.pace = $0 }
+            get: { mode },
+            set: { newMode in
+                guard newMode != mode else { return }
+                onChangeMode(newMode)
+            }
         )
     }
 
+    /// Distance along the simulated path (more precise than `route.distance`).
     private var distanceText: String {
-        let distance = showsProgress ? simulation.remainingDistance : route.distance
-        if Locale.current.region?.identifier == "GB" {
-            return formatUKDistance(distance)
-        }
-
-        let formatter = MeasurementFormatter()
-        formatter.locale = .current
-        formatter.unitOptions = .naturalScale
-        formatter.unitStyle = .short
-        formatter.numberFormatter.maximumFractionDigits = 1
-        return formatter.string(from: Measurement(value: distance, unit: UnitLength.meters))
+        if showsProgress { return RouteFormat.distance(simulation.remainingDistance) }
+        return RouteFormat.distance(
+            simulation.totalDistance > 0 ? simulation.totalDistance : route.distance
+        )
     }
 
-    private func formatUKDistance(_ distance: CLLocationDistance) -> String {
-        let metresPerMile = 1_609.344
-        guard distance >= metresPerMile else {
-            let yards = max(0, distance / 0.9144)
-            return "\(Int(yards.rounded())) yd"
-        }
-
-        let miles = distance / metresPerMile
-        return miles.formatted(
-            .number.precision(.fractionLength(miles < 10 ? 1 : 0))
-        ) + " mi"
+    /// ETA from the chosen speed over the remaining path.
+    private var remainingSeconds: TimeInterval {
+        simulation.totalDistance > 0 ? simulation.remainingDuration : route.expectedTravelTime
     }
 
     private var durationText: String {
         guard simulation.phase != .arrived else { return "Complete" }
-        let duration = simulation.totalDistance > 0
-            ? simulation.remainingDuration
-            : route.expectedTravelTime
-        return formatDuration(duration)
+        return RouteFormat.duration(remainingSeconds)
     }
 
     private var arrivalText: String {
         guard simulation.phase != .arrived else { return "Now" }
-        let duration = simulation.totalDistance > 0
-            ? simulation.remainingDuration
-            : route.expectedTravelTime
-        return Date.now
-            .addingTimeInterval(duration)
-            .formatted(date: .omitted, time: .shortened)
-    }
-
-    private func formatDuration(_ duration: TimeInterval) -> String {
-        let minutes = max(1, Int((duration / 60).rounded()))
-        guard minutes >= 60 else { return "\(minutes) min" }
-
-        let hours = minutes / 60
-        let remainingMinutes = minutes % 60
-        return remainingMinutes == 0
-            ? "\(hours) hr"
-            : "\(hours) hr \(remainingMinutes) min"
+        return RouteFormat.arrival(after: remainingSeconds)
     }
 }
 
