@@ -13,6 +13,8 @@ jobs:
         run: |
           xcodebuild -version
           xcrun --sdk iphoneos --show-sdk-version
+      - name: GPX / route logic self-check
+        run: ./scripts/gpx-selfcheck/run.sh
       - name: Archive (unsigned)
         run: |
           set -o pipefail; mkdir -p build
