@@ -10,24 +10,24 @@ enum RouteTravelMode: String, CaseIterable, Identifiable, Codable {
     var id: Self { self }
 
     /// Capitalised activity name, e.g. "Walking".
-    var title: String {
+    @MainActor var title: String {
         switch self {
-        case .walking: "Walking"
-        case .driving: "Driving"
-        case .cycling: "Cycling"
+        case .walking: L10n.tr("Walking")
+        case .driving: L10n.tr("Driving")
+        case .cycling: L10n.tr("Cycling")
         }
     }
 
     /// Short verb for compact buttons.
-    var shortTitle: String {
+    @MainActor var shortTitle: String {
         switch self {
-        case .walking: "Walk"
-        case .driving: "Drive"
-        case .cycling: "Cycle"
+        case .walking: L10n.tr("Walk")
+        case .driving: L10n.tr("Drive")
+        case .cycling: L10n.tr("Cycle")
         }
     }
 
-    var lowercasedTitle: String { title.lowercased() }
+    @MainActor var lowercasedTitle: String { title.lowercased() }
 
     /// Symbol for buttons and labels.
     var symbol: String {

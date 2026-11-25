@@ -56,7 +56,7 @@ struct WalkingRoutePreviewCard: View {
                     .frame(width: 32)
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(phaseTitle)
+                    Text(verbatim: phaseTitle)
                         .font(.headline)
 
                     Text(phaseSubtitle)
@@ -386,15 +386,15 @@ struct WalkingRoutePreviewCard: View {
         }
     }
 
-    private var phaseTitle: LocalizedStringKey {
+    private var phaseTitle: String {
         switch simulation.phase {
-        case .idle: "\(mode.title) route"
-        case .preparing: "Preparing \(mode.lowercasedTitle)"
+        case .idle: L10n.tr("\(mode.title) route")
+        case .preparing: L10n.tr("Preparing \(mode.lowercasedTitle)")
         case .walking: mode.title
-        case .paused: "\(mode.title) paused"
-        case .arrived: "Arrived"
-        case .stopping: "Ending \(mode.lowercasedTitle)"
-        case .failed: "\(mode.title) unavailable"
+        case .paused: L10n.tr("\(mode.title) paused")
+        case .arrived: L10n.tr("Arrived")
+        case .stopping: L10n.tr("Ending \(mode.lowercasedTitle)")
+        case .failed: L10n.tr("\(mode.title) unavailable")
         }
     }
 
