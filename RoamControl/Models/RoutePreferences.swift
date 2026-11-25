@@ -8,11 +8,11 @@ enum DistanceUnit: String, CaseIterable, Identifiable {
 
     var id: Self { self }
 
-    var title: String {
+    @MainActor var title: String {
         switch self {
-        case .automatic: "Automatic"
-        case .kilometres: "Kilometres"
-        case .miles: "Miles"
+        case .automatic: L10n.tr("Automatic")
+        case .kilometres: L10n.tr("Kilometres")
+        case .miles: L10n.tr("Miles")
         }
     }
 }
@@ -24,9 +24,9 @@ enum SpeedUnit: String, CaseIterable, Identifiable {
 
     var id: Self { self }
 
-    var title: String {
+    @MainActor var title: String {
         switch self {
-        case .automatic: "Automatic"
+        case .automatic: L10n.tr("Automatic")
         case .kilometresPerHour: "km/h"
         case .milesPerHour: "mph"
         }

@@ -674,7 +674,7 @@ struct HomeView: View {
             )
             guard let route else {
                 recoveredWalkError = walkingRoutePlanner.errorMessage
-                    ?? "The remaining \(recoveredMode.lowercasedTitle) route could not be prepared."
+                    ?? L10n.tr("The remaining \(recoveredMode.lowercasedTitle) route could not be prepared.")
                 isPreparingRecoveredWalk = false
                 return
             }

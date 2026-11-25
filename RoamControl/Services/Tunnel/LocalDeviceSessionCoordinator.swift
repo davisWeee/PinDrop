@@ -442,7 +442,7 @@ final class LocalDeviceSessionCoordinator: NSObject {
         let request = BGContinuedProcessingTaskRequest(
             identifier: identifier,
             title: "PinDrop",
-            subtitle: "Connecting to \(pendingSession.target.name)…"
+            subtitle: L10n.tr("Connecting to \(pendingSession.target.name)…")
         )
         request.strategy = .fail
 

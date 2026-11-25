@@ -88,7 +88,7 @@ final class WalkingSimulationController {
         } else {
             routeStart = nil
         }
-        phase = routePoints.count >= 2 ? .idle : .failed("This \(mode.lowercasedTitle) route does not contain enough detail to simulate movement.")
+        phase = routePoints.count >= 2 ? .idle : .failed(L10n.tr("This \(mode.lowercasedTitle) route does not contain enough detail to simulate movement."))
     }
 
     /// Prepares an arbitrary polyline (manual route / GPX import) for the same simulation pipeline.
@@ -114,7 +114,7 @@ final class WalkingSimulationController {
         }
         phase = routePoints.count >= 2 && totalDistance > 0
             ? .idle
-            : .failed("This route does not contain enough detail to simulate movement.")
+            : .failed(L10n.tr("This route does not contain enough detail to simulate movement."))
     }
 
     func prepareReturnTrip() -> LocationTarget? {
@@ -145,7 +145,7 @@ final class WalkingSimulationController {
             phase == .idle || isFailed
         else { return }
         guard case .paired = appModel.pairingStatus else {
-            phase = .failed("Pair this iPhone before starting a \(mode.lowercasedTitle) session.")
+            phase = .failed(L10n.tr("Pair this iPhone before starting a \(mode.lowercasedTitle) session."))
             return
         }
 
@@ -162,7 +162,7 @@ final class WalkingSimulationController {
         )
 
         if case .idle = appModel.deviceSession.phase, phase == .preparing {
-            phase = .failed("PinDrop could not start the \(mode.lowercasedTitle) session.")
+            phase = .failed(L10n.tr("PinDrop could not start the \(mode.lowercasedTitle) session."))
         }
     }
 
@@ -272,7 +272,7 @@ final class WalkingSimulationController {
                 )
 
                 guard let coordinate = self.coordinate(at: self.distanceTravelled) else {
-                    self.phase = .failed("PinDrop could not follow this \(mode.lowercasedTitle) route.")
+                    self.phase = .failed(L10n.tr("PinDrop could not follow this \(mode.lowercasedTitle) route."))
                     return
                 }
 
@@ -283,7 +283,7 @@ final class WalkingSimulationController {
                     : self.movementTarget(at: coordinate, destination: destination)
 
                 guard deviceSession.updateLocation(target) == .updated else {
-                    self.phase = .failed("The active location session ended before the \(mode.lowercasedTitle) trip finished.")
+                    self.phase = .failed(L10n.tr("The active location session ended before the \(mode.lowercasedTitle) trip finished."))
                     return
                 }
 
@@ -338,8 +338,8 @@ final class WalkingSimulationController {
         destination: LocationTarget
     ) -> LocationTarget {
         LocationTarget(
-            name: "\(mode.title) to \(destination.name)",
-            subtitle: "\(Int((progress * 100).rounded()))% complete",
+            name: L10n.tr("\(mode.title) to \(destination.name)"),
+            subtitle: L10n.tr("\(Int((progress * 100).rounded()))% complete"),
             latitude: coordinate.latitude,
             longitude: coordinate.longitude
         )

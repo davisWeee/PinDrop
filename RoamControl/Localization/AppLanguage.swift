@@ -108,7 +108,17 @@ enum L10n {
     static func lookup(_ message: String) -> String {
         let settings = LanguageSettings.shared
         _ = settings.selection
-        return settings.bundle.localizedString(forKey: message, value: message, table: nil)
+        let translated = settings.bundle.localizedString(forKey: message, value: message, table: nil)
+        if translated != message { return translated }
+        // Messages with one embedded integer (e.g. "(Keychain error -34018)") are catalogued with %lld.
+        if let range = message.range(of: #"-?\d+"#, options: .regularExpression) {
+            let template = message.replacingCharacters(in: range, with: "%lld")
+            let localizedTemplate = settings.bundle.localizedString(forKey: template, value: template, table: nil)
+            if localizedTemplate != template {
+                return localizedTemplate.replacingOccurrences(of: "%lld", with: String(message[range]))
+            }
+        }
+        return message
     }
 }
 

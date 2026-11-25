@@ -13,7 +13,7 @@ T = {
 "Remaining": ("المتبقي", "Restant", "Verbleibend", "נותר", "残り", "剩余", "Restante", "剩餘", "Còn lại"),
 "Distance": ("المسافة", "Distance", "Entfernung", "מרחק", "距離", "距离", "Distancia", "距離", "Khoảng cách"),
 "Status": ("الحالة", "État", "Status", "מצב", "状況", "状态", "Estado", "狀態", "Trạng thái"),
-"Walking": ("المشي", "Marche", "Gehen", "הליכה", "ウォーキング", "步行", "Caminando", "步行", "Đi bộ"),
+"Walking": ("المشي", "Marche", "Gehen", "הליכה", "ウォーキング", "步行", "Caminata", "步行", "Đi bộ"),
 "Arrive": ("الوصول", "Arrivée", "Ankunft", "הגעה", "到着", "到达", "Llegada", "抵達", "Đến nơi"),
 "Start Walking": ("ابدأ المشي", "Commencer la marche", "Gehen starten", "התחל ללכת", "ウォーキングを開始", "开始步行", "Empezar a caminar", "開始步行", "Bắt đầu đi bộ"),
 "Starting walking session…": ("جارٍ بدء جلسة المشي…", "Démarrage de la session de marche…", "Gehsitzung wird gestartet …", "מתחיל סשן הליכה…", "ウォーキングセッションを開始中…", "正在开始步行会话…", "Iniciando sesión de caminata…", "正在開始步行工作階段…", "Đang bắt đầu phiên đi bộ…"),

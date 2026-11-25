@@ -102,14 +102,14 @@ final class WalkingRoutePlanner {
             let response = try await calculation.calculate()
             guard directions === calculation else { return .cancelled }
             guard let preferredRoute = response.routes.first else {
-                return .failed("No \(name) route was found for this destination.")
+                return .failed(L10n.tr("No \(name) route was found for this destination."))
             }
             return .found(preferredRoute)
         } catch is CancellationError {
             return .cancelled
         } catch {
             guard directions === calculation else { return .cancelled }
-            return .failed("\(mode.title) directions are unavailable. Check Location access and your internet connection, then try again.")
+            return .failed(L10n.tr("\(mode.title) directions are unavailable. Check Location access and your internet connection, then try again."))
         }
     }
 

@@ -43,6 +43,26 @@ def write_catalog(path, entries):
     path.write_text(json.dumps(doc, ensure_ascii=False, indent=2, sort_keys=False) + "\n", encoding="utf-8")
 
 
+# Literal keys the extractor flags but that are NOT user-facing text: brand name, bare placeholders,
+# GPX/XML fragments and namespaces, technical identifiers, file names and number fallbacks.
+IGNORE_EXACT = {
+    "PinDrop", "GB", "UTF-8", "authTag", "PinDrop-route",
+    "%@", "%lld", "%@|%@", "%@-%@", "%lld s", "%@ · %lld%%",
+}
+IGNORE_PATTERNS = (
+    r"^https?://",                 # XML namespaces / schema locations
+    r"^\s*</?[A-Za-z]",            # XML tags (<trkpt ...>, <time>%@</time>, </trkpt>)
+    r"^\s*, elevation\)\)</ele>",  # tail of an <ele> interpolation fragment
+    r"^<ele>",                      # head of an <ele> interpolation fragment
+    r"^&[a-z]+;$",                  # XML entities
+)
+
+
+def is_ignored(key):
+    import re
+    return key in IGNORE_EXACT or any(re.search(p, key) for p in IGNORE_PATTERNS)
+
+
 INFOPLIST = {
     "CFBundleDisplayName": ("PinDrop",) * 9,
     "NSLocalNetworkUsageDescription": (
@@ -80,7 +100,7 @@ def main():
     if "--check" in sys.argv:
         sys.path.insert(0, str(HERE))
         import extract_keys
-        missing = [(k, w) for k, w in extract_keys.main().items() if k not in merged]
+        missing = [(k, w) for k, w in extract_keys.main().items() if k not in merged and not is_ignored(k)]
         for k, w in missing:
             print(f"MISSING  {k}   [{w}]")
         print(f"{len(missing)} literal keys without translations")

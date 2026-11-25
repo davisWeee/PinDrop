@@ -84,9 +84,9 @@ private struct ManualRouteHandleView: View {
 
     private var label: String {
         switch handle.role {
-        case .start: "Route start point"
-        case .middle: "Route point \(handle.id + 1)"
-        case .end: "Route end point"
+        case .start: L10n.tr("Route start point")
+        case .middle: L10n.tr("Route point \(String(handle.id + 1))")
+        case .end: L10n.tr("Route end point")
         }
     }
 }

@@ -153,14 +153,14 @@ struct SessionRecoveryView: View {
 
     private var summaryText: String {
         if let destination = recovery.destination, recovery.isWalkingRoute {
-            return "PinDrop did not receive a normal end signal while \(recovery.travelMode.lowercasedTitle) to \(destination.name). You can continue from the last saved point or safely restore your real location."
+            return L10n.tr("PinDrop did not receive a normal end signal while \(recovery.travelMode.lowercasedTitle) to \(destination.name). You can continue from the last saved point or safely restore your real location.")
         }
 
         return L10n.tr("PinDrop did not receive a normal end signal for the location at \(recovery.lastReportedLocation.name). Choose what this iPhone should do next.")
     }
 
     private var resumeTitle: String {
-        recovery.isWalkingRoute ? "Resume \(recovery.travelMode.title)" : "Resume Location"
+        recovery.isWalkingRoute ? L10n.tr("Resume \(recovery.travelMode.title)") : L10n.tr("Resume Location")
     }
 
     private func recoveryDetail(title: String, value: String, symbol: String) -> some View {

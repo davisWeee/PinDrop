@@ -311,9 +311,9 @@ struct WalkingRoutePreviewCard: View {
         case .idle:
             Text(isPaired
                  ? (isApproximated
-                    ? "Cycling directions aren't available here, so your location follows the walking path at cycling speed."
-                    : "Your location will move along this route at the selected speed.")
-                 : "Pair this iPhone before starting a \(mode.lowercasedTitle) session.")
+                    ? L10n.tr("Cycling directions aren't available here, so your location follows the walking path at cycling speed.")
+                    : L10n.tr("Your location will move along this route at the selected speed."))
+                 : L10n.tr("Pair this iPhone before starting a \(mode.lowercasedTitle) session."))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)

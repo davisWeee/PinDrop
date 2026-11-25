@@ -27,7 +27,15 @@ enum RouteTravelMode: String, CaseIterable, Identifiable, Codable {
         }
     }
 
-    @MainActor var lowercasedTitle: String { title.lowercased() }
+    /// Lower-case form used inside sentences ("walking" / "on foot"); has its own translations
+    /// because simply lower-casing the localized title is wrong in several languages.
+    @MainActor var lowercasedTitle: String {
+        switch self {
+        case .walking: L10n.tr("walking")
+        case .driving: L10n.tr("driving")
+        case .cycling: L10n.tr("cycling")
+        }
+    }
 
     /// Symbol for buttons and labels.
     var symbol: String {

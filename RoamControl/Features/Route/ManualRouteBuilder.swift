@@ -199,10 +199,10 @@ final class ManualRouteBuilder {
     func finish(simulation: WalkingSimulationController) -> Bool {
         let cleaned = RouteGeometry.removingCloseVertices(points, minimumSpacing: 0.5)
         guard cleaned.count >= 2 else {
-            message = "Add at least two points to make a route."
+            message = L10n.tr("Add at least two points to make a route.")
             return false
         }
-        let name = "Route " + Date.now.formatted(date: .abbreviated, time: .shortened)
+        let name = L10n.tr("Route \(Date.now.formatted(date: .abbreviated, time: .shortened))")
         install(ManualRoute(name: name, points: cleaned, source: .drawn), simulation: simulation)
         return true
     }
@@ -250,10 +250,14 @@ final class ManualRouteBuilder {
         return types
     }
 
+    private static func importMessage(for error: any Error) -> String {
+        (error as? GPXError)?.localizedText ?? error.localizedDescription
+    }
+
     func importGPX(_ result: Result<URL, any Error>, simulation: WalkingSimulationController) {
         switch result {
         case .failure(let error):
-            message = error.localizedDescription
+            message = Self.importMessage(for: error)
         case .success(let url):
             let scoped = url.startAccessingSecurityScopedResource()
             defer { if scoped { url.stopAccessingSecurityScopedResource() } }
@@ -261,7 +265,7 @@ final class ManualRouteBuilder {
             do {
                 let data = try Data(contentsOf: url)
                 guard data.count <= Self.maximumImportBytes else {
-                    message = "This GPX file is too large (over 25 MB)."
+                    message = L10n.tr("This GPX file is too large (over 25 MB).")
                     return
                 }
                 let document = try GPXParser.parse(data)
@@ -278,7 +282,7 @@ final class ManualRouteBuilder {
                 points = []
                 install(ManualRoute(name: name, points: cleaned, source: .gpx), simulation: simulation)
             } catch {
-                message = error.localizedDescription
+                message = Self.importMessage(for: error)
             }
         }
     }
@@ -288,7 +292,7 @@ final class ManualRouteBuilder {
         let exported = displayPoints
         guard exported.count >= 2 else { return nil }
         return GPXExportFile(
-            name: prepared?.name ?? "PinDrop route",
+            name: prepared?.name ?? L10n.tr("PinDrop route"),
             points: exported,
             start: exportStart,
             metresPerSecond: metresPerSecond
@@ -301,7 +305,7 @@ final class ManualRouteBuilder {
         guard let last = route.points.last else { return }
         let destination = LocationTarget(
             name: route.name,
-            subtitle: "Custom route",
+            subtitle: L10n.tr("Custom route"),
             latitude: last.latitude,
             longitude: last.longitude
         )

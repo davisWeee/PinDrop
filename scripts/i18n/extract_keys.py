@@ -13,10 +13,12 @@ def to_key(lit: str) -> str:
     def conv(m):
         expr = m.group(1)
         if re.search(r'Int\(|minutes|hours|remainingMinutes|number|selectedPage|pages\.count|progress|status\b', expr):
-            return '%lld'
-        return '%@'
+            return '\x01'
+        return '\x02'
     k = re.sub(r'\\\(((?:[^()]|\([^()]*(?:\([^()]*\)[^()]*)*\))*)\)', conv, lit)
-    k = k.replace('\\"', '"').replace('\\\\', '\\').replace('%', '%%') if '%lld' not in k and '%@' not in k else k.replace('\\"', '"').replace('\\\\', '\\')
+    # Literal '%' is escaped as '%%' in String Catalog keys; placeholders are substituted afterwards.
+    k = k.replace('\\"', '"').replace('\\\\', '\\').replace('%', '%%')
+    k = k.replace('\x01', '%lld').replace('\x02', '%@')
     return k
 
 def main():

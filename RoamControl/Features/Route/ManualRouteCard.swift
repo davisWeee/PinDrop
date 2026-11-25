@@ -149,9 +149,9 @@ struct ManualRouteCard: View {
     private var editorHint: String {
         switch builder.mode {
         case .tap:
-            "Tap the map to add points. Drag a point to move it."
+            L10n.tr("Tap the map to add points. Drag a point to move it.")
         case .freehand:
-            "Draw a path with your finger. Switch to Tap points to pan or zoom the map."
+            L10n.tr("Draw a path with your finger. Switch to Tap points to pan or zoom the map.")
         }
     }
 
@@ -324,8 +324,8 @@ struct ManualRouteCard: View {
                 .frame(maxWidth: .infinity, alignment: .center)
         case .idle:
             Text(isPaired
-                 ? "Your location will move along this route at the selected pace."
-                 : "Pair this iPhone before starting a route.")
+                 ? L10n.tr("Your location will move along this route at the selected pace.")
+                 : L10n.tr("Pair this iPhone before starting a route."))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -405,7 +405,7 @@ struct ManualRouteCard: View {
                 ),
                 RouteCardMetric(
                     title: duration == nil ? "Status" : "Time",
-                    value: duration.map(ManualRouteFormat.duration) ?? "Complete",
+                    value: duration.map(ManualRouteFormat.duration) ?? L10n.tr("Complete"),
                     symbol: duration == nil ? "checkmark.circle" : "clock"
                 ),
             ]
@@ -450,13 +450,13 @@ struct ManualRouteCard: View {
 
     private var phaseTitle: String {
         switch simulation.phase {
-        case .idle: "Custom route"
-        case .preparing: "Preparing route"
-        case .walking: "On route"
-        case .paused: "Route paused"
-        case .arrived: "Route finished"
-        case .stopping: "Ending route"
-        case .failed: "Route unavailable"
+        case .idle: L10n.tr("Custom route")
+        case .preparing: L10n.tr("Preparing route")
+        case .walking: L10n.tr("On route")
+        case .paused: L10n.tr("Route paused")
+        case .arrived: L10n.tr("Route finished")
+        case .stopping: L10n.tr("Ending route")
+        case .failed: L10n.tr("Route unavailable")
         }
     }
 
@@ -465,9 +465,11 @@ struct ManualRouteCard: View {
         case .walking, .paused:
             "\(route.name) · \(Int((simulation.progress * 100).rounded()))%"
         case .stopping:
-            "Restoring this iPhone's real location"
+            L10n.tr("Restoring this iPhone's real location")
         case .idle, .preparing, .arrived, .failed:
-            "\(route.name) · \(route.source == .gpx ? "GPX import" : "drawn")"
+            route.source == .gpx
+                ? L10n.tr("\(route.name) · GPX import")
+                : L10n.tr("\(route.name) · drawn")
         }
     }
 
@@ -499,7 +501,7 @@ private struct RouteCardMetric: View, Identifiable {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 5) {
-            Label(title, systemImage: symbol)
+            Label(L10n.lookup(title), systemImage: symbol)
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
@@ -513,10 +515,11 @@ private struct RouteCardMetric: View, Identifiable {
         .padding(10)
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 13, style: .continuous))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(title), \(value)")
+        .accessibilityLabel("\(L10n.lookup(title)), \(value)")
     }
 }
 
+@MainActor
 enum ManualRouteFormat {
     static func distance(_ metres: Double) -> String {
         let formatter = MeasurementFormatter()
@@ -529,10 +532,12 @@ enum ManualRouteFormat {
 
     static func duration(_ seconds: TimeInterval) -> String {
         let minutes = max(0, Int((seconds / 60).rounded()))
-        guard minutes >= 1 else { return "< 1 min" }
-        guard minutes >= 60 else { return "\(minutes) min" }
+        guard minutes >= 1 else { return L10n.tr("< 1 min") }
+        guard minutes >= 60 else { return L10n.tr("\(minutes) min") }
         let hours = minutes / 60
-        let rest = minutes % 60
-        return rest == 0 ? "\(hours) hr" : "\(hours) hr \(rest) min"
+        let remainingMinutes = minutes % 60
+        return remainingMinutes == 0
+            ? L10n.tr("\(hours) hr")
+            : L10n.tr("\(hours) hr \(remainingMinutes) min")
     }
 }

@@ -105,7 +105,7 @@ final class OnDevicePairingCoordinator {
         let request = BGContinuedProcessingTaskRequest(
             identifier: identifier,
             title: "PinDrop",
-            subtitle: "Preparing secure pairing…"
+            subtitle: L10n.tr("Preparing secure pairing…")
         )
         request.strategy = .fail
 
@@ -224,8 +224,8 @@ final class OnDevicePairingCoordinator {
         phase = .showingPIN(pin)
         backgroundTask?.progress.completedUnitCount = 55
         backgroundTask?.updateTitle(
-            "PinDrop pairing code",
-            subtitle: "Enter \(pin) in Settings"
+            L10n.tr("PinDrop pairing code"),
+            subtitle: L10n.tr("Enter \(pin) in Settings")
         )
     }
 
@@ -235,7 +235,7 @@ final class OnDevicePairingCoordinator {
         backgroundTask?.progress.completedUnitCount = 25
         backgroundTask?.updateTitle(
             "PinDrop",
-            subtitle: "Choose Pair with PinDrop in Settings"
+            subtitle: L10n.tr("Choose Pair with PinDrop in Settings")
         )
     }
 
@@ -291,7 +291,7 @@ final class OnDevicePairingCoordinator {
                     self.backgroundTask?.progress.completedUnitCount = 100
                     self.backgroundTask?.updateTitle(
                         "PinDrop",
-                        subtitle: "Pairing complete"
+                        subtitle: L10n.tr("Pairing complete")
                     )
                     self.finishBackgroundTask(success: true)
                 } catch {
