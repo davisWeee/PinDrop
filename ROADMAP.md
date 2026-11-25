@@ -1,0 +1,11 @@
+# Roadmap (feature parity target)
+- [x] Fixed location (search / coordinates / map pin), favourites, history
+- [x] Walking route preview, pause/resume/reverse/redirect
+- [x] On-device pairing, LocalDevVPN guided setup, session recovery
+- [ ] Driving + Cycling routes (MapKit directions)
+- [ ] Custom walking/cycling/driving speeds, mph/km/h, miles/km
+- [ ] Manual routes (point-by-point + freehand)
+- [ ] GPX import / export
+- [ ] Joystick free movement
+- [ ] 10 languages incl. RTL
+- [ ] Own app icon
