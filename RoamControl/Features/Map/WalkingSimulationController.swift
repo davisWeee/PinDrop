@@ -2,6 +2,7 @@ import CoreLocation
 import Foundation
 import MapKit
 import Observation
+import SwiftUI
 
 enum WalkingPace: Double, CaseIterable, Identifiable {
     case relaxed = 1.0
@@ -10,7 +11,7 @@ enum WalkingPace: Double, CaseIterable, Identifiable {
 
     var id: Self { self }
 
-    var title: String {
+    var title: LocalizedStringKey {
         switch self {
         case .relaxed: "Relaxed"
         case .normal: "Normal"
@@ -87,8 +88,8 @@ final class WalkingSimulationController {
         self.destination = destination
         if let startCoordinate = routePoints.first?.coordinate {
             routeStart = LocationTarget(
-                name: "Route Start",
-                subtitle: "Starting point for \(destination.name)",
+                name: L10n.tr("Route Start"),
+                subtitle: L10n.tr("Starting point for \(destination.name)"),
                 latitude: startCoordinate.latitude,
                 longitude: startCoordinate.longitude
             )
@@ -318,8 +319,8 @@ final class WalkingSimulationController {
         destination: LocationTarget
     ) -> LocationTarget {
         LocationTarget(
-            name: "Walking to \(destination.name)",
-            subtitle: "\(Int((progress * 100).rounded()))% complete",
+            name: L10n.tr("Walking to \(destination.name)"),
+            subtitle: L10n.tr("\(Int((progress * 100).rounded()))% complete"),
             latitude: coordinate.latitude,
             longitude: coordinate.longitude
         )

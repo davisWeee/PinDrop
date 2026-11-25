@@ -28,7 +28,7 @@ struct OnboardingView: View {
 
             VStack(spacing: 0) {
                 ZStack {
-                    Text("ROAM CONTROL")
+                    Text(verbatim: "PINDROP")
                         .font(.caption.weight(.bold))
                         .tracking(2.2)
                         .foregroundStyle(.secondary)
@@ -116,13 +116,13 @@ struct OnboardingView: View {
         }
     }
 
-    private var finalButtonTitle: String {
+    private var finalButtonTitle: LocalizedStringKey {
         if !isLastPage { return "Continue" }
         return isReplay ? "Done" : "Set Up This iPhone"
     }
 
     private var finalButtonSymbol: String {
-        if !isLastPage { return "arrow.right" }
+        if !isLastPage { return "arrow.forward" }
         return isReplay ? "checkmark" : "iphone.and.arrow.forward"
     }
 }
@@ -219,15 +219,15 @@ private struct OnboardingPageView: View {
 
 private struct OnboardingPage {
     let symbol: String
-    let title: String
-    let message: String
+    let title: LocalizedStringKey
+    let message: LocalizedStringKey
     let colors: [Color]
     let showsUsageStatisticsControl: Bool
 
     init(
         symbol: String,
-        title: String,
-        message: String,
+        title: LocalizedStringKey,
+        message: LocalizedStringKey,
         colors: [Color],
         showsUsageStatisticsControl: Bool = false
     ) {

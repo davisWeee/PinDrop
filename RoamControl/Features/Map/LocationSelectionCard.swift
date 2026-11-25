@@ -70,7 +70,7 @@ struct LocationSelectionCard: View {
                             } else {
                                 Image(systemName: "figure.walk")
                             }
-                            Text(isPreviewingWalkingRoute ? "Planning Walking Route…" : "Preview Walking Route")
+                            Text(isPreviewingWalkingRoute ? LocalizedStringKey("Planning Walking Route…") : LocalizedStringKey("Preview Walking Route"))
                         }
                         .frame(maxWidth: .infinity)
                     }
@@ -80,7 +80,7 @@ struct LocationSelectionCard: View {
                 }
 
                 if let walkingRouteError {
-                    Text(walkingRouteError)
+                    Text(walkingRouteError.localizedMessage)
                         .font(.caption)
                         .foregroundStyle(.red)
                         .frame(maxWidth: .infinity, alignment: .center)
@@ -158,12 +158,12 @@ struct LocationSelectionCard: View {
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(location.name)
+                Text(location.name.localizedMessage)
                     .font(.headline)
                     .lineLimit(dynamicTypeSize.isAccessibilitySize ? 3 : 1)
 
                 HStack(spacing: 7) {
-                    Text(locationDescription(for: location))
+                    Text(locationDescription(for: location).localizedMessage)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .lineLimit(dynamicTypeSize.isAccessibilitySize ? 4 : 2)
@@ -177,7 +177,7 @@ struct LocationSelectionCard: View {
                             .frame(width: 44, height: 44)
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(didCopyCoordinates ? "Location copied" : "Copy location")
+                    .accessibilityLabel(didCopyCoordinates ? LocalizedStringKey("Location copied") : LocalizedStringKey("Copy location"))
                 }
             }
         }
@@ -192,7 +192,7 @@ struct LocationSelectionCard: View {
                 .frame(width: 44, height: 44)
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(isFavourite ? "Remove from favourites" : "Add to favourites")
+        .accessibilityLabel(isFavourite ? LocalizedStringKey("Remove from favourites") : LocalizedStringKey("Add to favourites"))
 
         if canClearSelection {
             Button(action: onClearSelection) {
@@ -311,7 +311,7 @@ struct LocationSelectionCard: View {
         return message.localizedCaseInsensitiveContains("Install LocalDevVPN")
     }
 
-    private var primaryTitle: String {
+    private var primaryTitle: LocalizedStringKey {
         switch sessionPhase {
         case .openingLocalDevVPN:
             "Opening LocalDevVPN…"
@@ -365,23 +365,23 @@ struct LocationSelectionCard: View {
         switch sessionPhase {
         case .idle:
             return isPaired
-                ? "Start when ready. Stop restores this iPhone's real location."
-                : "Pair this iPhone before starting location control."
+                ? L10n.tr("Start when ready. Stop restores this iPhone's real location.")
+                : L10n.tr("Pair this iPhone before starting location control.")
         case .openingLocalDevVPN:
-            return "PinDrop will return automatically after the tunnel starts."
+            return L10n.tr("PinDrop will return automatically after the tunnel starts.")
         case .discovering:
-            return "Finding the paired iPhone through the private local tunnel."
+            return L10n.tr("Finding the paired iPhone through the private local tunnel.")
         case .connecting:
-            return "Opening the secure location session."
+            return L10n.tr("Opening the secure location session.")
         case .active(let target):
             if !isShowingActiveTarget, let location {
-                return "Currently using \(target.name). Update to move to \(location.name)."
+                return L10n.tr("Currently using \(target.name). Update to move to \(location.name).")
             }
-            return "This iPhone is using \(target.name). Stop to restore its real location."
+            return L10n.tr("This iPhone is using \(target.name). Stop to restore its real location.")
         case .stopping:
-            return "Restoring this iPhone's real location."
+            return L10n.tr("Restoring this iPhone's real location.")
         case .failed(let message):
-            return message
+            return message.localizedMessage
         }
     }
 

@@ -113,17 +113,17 @@ struct WalkingRoutePreviewCard: View {
     @ViewBuilder
     private var routeMetrics: some View {
         let distance = RouteMetric(
-            title: showsProgress ? "Remaining" : "Distance",
+            title: L10n.tr(showsProgress ? "Remaining" : "Distance"),
             value: distanceText,
             symbol: "point.topleft.down.to.point.bottomright.curvepath"
         )
         let duration = RouteMetric(
-            title: simulation.phase == .arrived ? "Status" : "Walking",
+            title: L10n.tr(simulation.phase == .arrived ? "Status" : "Walking"),
             value: durationText,
             symbol: simulation.phase == .arrived ? "checkmark.circle" : "clock"
         )
         let arrival = RouteMetric(
-            title: "Arrive",
+            title: L10n.tr("Arrive"),
             value: arrivalText,
             symbol: "flag.checkered"
         )
@@ -222,7 +222,7 @@ struct WalkingRoutePreviewCard: View {
     private var pauseButton: some View {
                 Button(action: onTogglePause) {
                     Label(
-                        simulation.phase == .paused ? "Resume" : "Pause",
+                        simulation.phase == .paused ? LocalizedStringKey("Resume") : LocalizedStringKey("Pause"),
                         systemImage: simulation.phase == .paused ? "play.fill" : "pause.fill"
                     )
                     .frame(maxWidth: .infinity)
@@ -281,8 +281,8 @@ struct WalkingRoutePreviewCard: View {
         switch simulation.phase {
         case .idle:
             Text(isPaired
-                 ? "Your location will move along this route at the selected pace."
-                 : "Pair this iPhone before starting a walking session.")
+                 ? LocalizedStringKey("Your location will move along this route at the selected pace.")
+                 : LocalizedStringKey("Pair this iPhone before starting a walking session."))
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -320,7 +320,7 @@ struct WalkingRoutePreviewCard: View {
             EmptyView()
 
         case .failed(let message):
-            Text(message)
+            Text(message.localizedMessage)
                 .font(.caption)
                 .foregroundStyle(.red)
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -355,7 +355,7 @@ struct WalkingRoutePreviewCard: View {
         }
     }
 
-    private var phaseTitle: String {
+    private var phaseTitle: LocalizedStringKey {
         switch simulation.phase {
         case .idle: "Walking route"
         case .preparing: "Preparing walk"
@@ -370,13 +370,13 @@ struct WalkingRoutePreviewCard: View {
     private var phaseSubtitle: String {
         switch simulation.phase {
         case .idle, .preparing, .failed:
-            "Current Location to \(destination.name)"
+            L10n.tr("Current Location to \(destination.name)")
         case .walking, .paused:
-            "Heading to \(destination.name) · \(Int((simulation.progress * 100).rounded()))%"
+            L10n.tr("Heading to \(destination.name) · \(Int((simulation.progress * 100).rounded()))%")
         case .arrived:
-            "Location active at \(destination.name)"
+            L10n.tr("Location active at \(destination.name)")
         case .stopping:
-            "Restoring this iPhone's real location"
+            L10n.tr("Restoring this iPhone's real location")
         }
     }
 
@@ -423,17 +423,18 @@ struct WalkingRoutePreviewCard: View {
         let metresPerMile = 1_609.344
         guard distance >= metresPerMile else {
             let yards = max(0, distance / 0.9144)
-            return "\(Int(yards.rounded())) yd"
+            return L10n.tr("\(Int(yards.rounded())) yd")
         }
 
         let miles = distance / metresPerMile
-        return miles.formatted(
+        let milesText = miles.formatted(
             .number.precision(.fractionLength(miles < 10 ? 1 : 0))
-        ) + " mi"
+        )
+        return L10n.tr("\(milesText) mi")
     }
 
     private var durationText: String {
-        guard simulation.phase != .arrived else { return "Complete" }
+        guard simulation.phase != .arrived else { return L10n.tr("Complete") }
         let duration = simulation.totalDistance > 0
             ? simulation.remainingDuration
             : route.expectedTravelTime
@@ -441,7 +442,7 @@ struct WalkingRoutePreviewCard: View {
     }
 
     private var arrivalText: String {
-        guard simulation.phase != .arrived else { return "Now" }
+        guard simulation.phase != .arrived else { return L10n.tr("Now") }
         let duration = simulation.totalDistance > 0
             ? simulation.remainingDuration
             : route.expectedTravelTime
@@ -452,13 +453,13 @@ struct WalkingRoutePreviewCard: View {
 
     private func formatDuration(_ duration: TimeInterval) -> String {
         let minutes = max(1, Int((duration / 60).rounded()))
-        guard minutes >= 60 else { return "\(minutes) min" }
+        guard minutes >= 60 else { return L10n.tr("\(minutes) min") }
 
         let hours = minutes / 60
         let remainingMinutes = minutes % 60
         return remainingMinutes == 0
-            ? "\(hours) hr"
-            : "\(hours) hr \(remainingMinutes) min"
+            ? L10n.tr("\(hours) hr")
+            : L10n.tr("\(hours) hr \(remainingMinutes) min")
     }
 }
 

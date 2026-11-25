@@ -12,7 +12,7 @@ struct ConnectionBadge: View {
             Text(label)
                 .font(.caption.weight(.semibold))
 
-            Image(systemName: "chevron.right")
+            Image(systemName: "chevron.forward")
                 .font(.caption2.weight(.bold))
                 .foregroundStyle(.secondary)
         }
@@ -27,11 +27,11 @@ struct ConnectionBadge: View {
 
     private var label: String {
         switch state {
-        case .notConfigured: "Set up iPhone"
-        case .ready: "Ready"
-        case .connecting: "Connecting…"
-        case .active: "Session active"
-        case .failed: "Connection error"
+        case .notConfigured: L10n.tr("Set up iPhone")
+        case .ready: L10n.tr("Ready")
+        case .connecting: L10n.tr("Connecting…")
+        case .active: L10n.tr("Session active")
+        case .failed: L10n.tr("Connection error")
         }
     }
 

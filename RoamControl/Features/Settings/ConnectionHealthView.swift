@@ -10,21 +10,21 @@ struct ConnectionHealthView: View {
         List {
             Section("Connection Health") {
                 healthRow(
-                    title: "Pairing",
+                    title: L10n.tr("Pairing"),
                     value: pairingValue,
                     symbol: pairingSymbol,
                     color: pairingColor
                 )
 
                 healthRow(
-                    title: "LocalDevVPN",
+                    title: L10n.tr("LocalDevVPN"),
                     value: localDevVPNValue,
                     symbol: localDevVPNSymbol,
                     color: localDevVPNColor
                 )
 
                 healthRow(
-                    title: "Location Session",
+                    title: L10n.tr("Location Session"),
                     value: sessionValue,
                     symbol: sessionSymbol,
                     color: sessionColor
@@ -32,11 +32,11 @@ struct ConnectionHealthView: View {
             }
 
             Section("Current Location") {
-                LabeledContent("Place", value: activeTarget?.name ?? "None")
+                LabeledContent("Place", value: activeTarget?.name.localizedMessage ?? L10n.tr("None"))
                 LabeledContent("Coordinates", value: coordinatesValue)
 
                 if let activeTarget, !activeTarget.subtitle.isEmpty {
-                    LabeledContent("Area", value: activeTarget.subtitle)
+                    LabeledContent("Area", value: activeTarget.subtitle.localizedMessage)
                 }
             }
 
@@ -117,17 +117,17 @@ struct ConnectionHealthView: View {
     }
 
     private var coordinatesValue: String {
-        guard let activeTarget else { return "None" }
+        guard let activeTarget else { return L10n.tr("None") }
         return String(format: "%.5f, %.5f", activeTarget.latitude, activeTarget.longitude)
     }
 
     private var pairingValue: String {
         switch appModel.pairingStatus {
-        case .checking: "Checking"
-        case .importing: "Importing"
-        case .notPaired: "Not paired"
-        case .paired: "Ready"
-        case .failed: "Problem"
+        case .checking: L10n.tr("Checking")
+        case .importing: L10n.tr("Importing")
+        case .notPaired: L10n.tr("Not paired")
+        case .paired: L10n.tr("Ready")
+        case .failed: L10n.tr("Problem")
         }
     }
 
@@ -152,11 +152,11 @@ struct ConnectionHealthView: View {
     private var localDevVPNValue: String {
         switch diagnostics.state {
         case .notRun:
-            if case .active = appModel.deviceSession.phase { return "Connected" }
-            return "Not checked"
-        case .running: return "Checking"
-        case .passed: return "Reachable"
-        case .failed: return "Not reachable"
+            if case .active = appModel.deviceSession.phase { return L10n.tr("Connected") }
+            return L10n.tr("Not checked")
+        case .running: return L10n.tr("Checking")
+        case .passed: return L10n.tr("Reachable")
+        case .failed: return L10n.tr("Not reachable")
         }
     }
 
@@ -184,13 +184,13 @@ struct ConnectionHealthView: View {
 
     private var sessionValue: String {
         switch appModel.deviceSession.phase {
-        case .idle: "Inactive"
-        case .openingLocalDevVPN: "Opening LocalDevVPN"
-        case .discovering: "Finding this iPhone"
-        case .connecting: "Connecting"
-        case .active: "Active"
-        case .stopping: "Stopping"
-        case .failed: "Failed"
+        case .idle: L10n.tr("Inactive")
+        case .openingLocalDevVPN: L10n.tr("Opening LocalDevVPN")
+        case .discovering: L10n.tr("Finding this iPhone")
+        case .connecting: L10n.tr("Connecting")
+        case .active: L10n.tr("Active")
+        case .stopping: L10n.tr("Stopping")
+        case .failed: L10n.tr("Failed")
         }
     }
 
@@ -216,7 +216,7 @@ struct ConnectionHealthView: View {
     private var resultMessage: String? {
         switch diagnostics.state {
         case .notRun, .running: nil
-        case .passed(let message), .failed(let message): message
+        case .passed(let message), .failed(let message): message.localizedMessage
         }
     }
 
@@ -301,8 +301,8 @@ struct ConnectionHealthView: View {
         Coordinates: \(coordinatesValue)
         Last connection check: \(checked)
         Connection check result: \(diagnosticResultText)
-        Appearance: \(appModel.appearance.title)
-        Map style: \(appModel.mapDisplayStyle.title)
+        Appearance: \(appModel.appearance.rawValue)
+        Map style: \(appModel.mapDisplayStyle.rawValue)
         """
     }
 

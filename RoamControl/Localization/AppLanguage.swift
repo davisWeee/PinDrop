@@ -92,10 +92,28 @@ final class LanguageSettings {
 }
 
 /// Localization for strings built in code (errors, names, status text).
+/// Reading `LanguageSettings.shared.selection` inside a view body makes that view refresh on language change.
 enum L10n {
+    /// For literals / interpolations: `L10n.tr("Resume \(name)")` -> catalog key "Resume %@".
     @MainActor
     static func tr(_ value: String.LocalizationValue) -> String {
         let settings = LanguageSettings.shared
+        _ = settings.selection
         return String(localized: value, bundle: settings.bundle, locale: settings.locale)
     }
+
+    /// For English message strings produced by non-UI layers (they double as lookup keys).
+    /// Returns the text unchanged when no translation exists (e.g. messages with embedded values).
+    @MainActor
+    static func lookup(_ message: String) -> String {
+        let settings = LanguageSettings.shared
+        _ = settings.selection
+        return settings.bundle.localizedString(forKey: message, value: message, table: nil)
+    }
+}
+
+extension String {
+    /// Localizes an English message created outside the view layer.
+    @MainActor
+    var localizedMessage: String { L10n.lookup(self) }
 }

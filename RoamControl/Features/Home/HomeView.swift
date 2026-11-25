@@ -41,7 +41,7 @@ struct HomeView: View {
                     }
 
                     if let target = mapModel.selectedLocation {
-                        Marker(target.name, coordinate: target.coordinate)
+                        Marker(target.name.localizedMessage, coordinate: target.coordinate)
                             .tint(.blue)
                     }
 
@@ -169,7 +169,7 @@ struct HomeView: View {
 
                             Spacer()
 
-                            Image(systemName: "chevron.right")
+                            Image(systemName: "chevron.forward")
                                 .font(.caption.weight(.bold))
                                 .foregroundStyle(.secondary)
                         }
@@ -340,7 +340,7 @@ struct HomeView: View {
             if let message = mapModel.errorMessage {
                 VStack {
                     Spacer()
-                    Text(message)
+                    Text(message.localizedMessage)
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(.white)
                         .padding(.horizontal, 16)
